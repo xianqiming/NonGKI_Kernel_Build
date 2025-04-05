@@ -32,7 +32,7 @@ Each profile consists of the following elements:
 **GCC_XX_SOURCE** - Location of GCC (supports git, tar.gz, zip).  
 **GCC_XX_BRANCH** - Required branch for GCC (only applicable if using git).  
 
-**DEFCONFIG_SOURCE** - If you need a custom DEFCONFIG file, provide the specific file path.  
+**DEFCONFIG_SOURCE** - If you require a custom DEFCONFIG file, you can provide a download link for the DEFCONFIG file.  
 **DEFCONFIG_NAME** - The required DEFCONFIG file for compilation, usually formatted as device_defconfig or vendor/device_defconfig.  
 **DEFCONFIG_ORIGIN_IMAGE** - (Experimental ⚠) If you do not need the default DEFCONFIG from the kernel source and cannot provide a custom DEFCONFIG, you can extract the DEFCONFIG file from the Image file you obtained (Image.gz and Image.gz-dtb need to be manually decompressed before uploading). **DEFCONFIG_NAME** must be specified and cannot be empty.  
 
@@ -61,10 +61,11 @@ All patches provided by this project are not guaranteed to work properly on kern
 These are the example files we provide: **codename_rom_template.env** and **build_kernel_template.yml**.  
 
 - **env:** - Define essential variables independently from the Profiles configuration.
+    - **PYTHON_VERSION** - The default Python command in Ubuntu is Python 3, but Python 2 is still needed in some cases. This variable allows you to specify 2 or 3. If you only need to install Python 2 without changing the default Python version, you can add PYTHON=/usr/bin/python2 to EXTRA_CMDS to force Python 2 to be used during compilation.
     - **PACK_METHOD** - Packaging method, either MKBOOTIMG or [Anykernel3](https://github.com/osm0sis/AnyKernel3) (default: Anykernel3).
     - **KERNELSU_METHOD** - The method for embedding KernelSU:
         - The default is "**shell**". 
-        - If setup.sh is not used or encounters errors, change this to "**manual**". Although manual means manual installation, no manual intervention is required.
+        - If setup.sh is not used or encounters errors, change this to "**manual**". Although manual means manual installation, no manual intervention is required. Pay attention to it that execute git in choose the mode only.
         - If your kernel already has KernelSU but you want to replace it, you can use "**only**" to execute Git operations without applying patches.
     - **PATCHES_SOURCE** - SUSFS typically requires manual patches. Provide the GitHub repository URL containing the patches. If you are not using SUSFS, this can be left blank.
     - **PATCHES_BRANCH** - The required branch for the patch repository (default: main).
@@ -73,7 +74,10 @@ These are the example files we provide: **codename_rom_template.env** and **buil
         - [vfs](https://github.com/backslashxx/KernelSU/issues/5): Minimal patching method, which may improve hiding KernelSU but might cause ISO compliance issues with older Clang versions，And there are issues with support for kernels ≤4.9. It is recommended to enable this only for higher kernel versions.
     - **PROFILE_NAME** - Enter the name of your modified ENV environment variable file, such as codename_rom_template.env.
     - **KERNELSU_SUS_PATCH** - If your KernelSU is not part of KernelSU-Next and does not have a patch branch for SuSFS, you can enable this option (true). However, we do not recommend doing so, as the KernelSU branches have been heavily modified, and manual patching is no longer suitable for the current era.
+    - **GENERATE_DTB** - If your kernel requires a DTB file after compilation (not .dtb, .dtbo, or .dtsi), you can enable this option to automatically generate the DTB file. 
+    - **GENERATE_CHIP** - Specifies the CPU type for generating the DTB file. Typically supports qcom and mediatek, but compatibility with other CPUs is uncertain.
     - **BUILD_DEBUGGER** - Enables error reporting if needed. Currently, it provides output for patch error .rej files, with more features expected in future updates.
+    - **BUILD_OTHER_CONFIG** - If you need to merge additional .config files included in the kernel source, you can enable this option. However, you must manually modify the MERGE_CONFIG_FILES array in the "Build Kernel" section.
 
 - **runs-on:** ubuntu-XX.XX 
     - Different kernels may require different Ubuntu versions. The default is 22.04, but support for both 22.04 and 24.04 is available. The system version determines which package installation method is used.
@@ -81,6 +85,7 @@ These are the example files we provide: **codename_rom_template.env** and **buil
 - **Set Compile Environment**
     - If no GCC is needed, Clang-only compilation is selected automatically.
     - If GCC is needed, both 64-bit and 32-bit versions must be specified. The recommended format is git, but tar.gz and zip are also supported.
+    - You can choose to use only GCC without enabling Clang. Additionally, GCC allows using the system's default installed version. This can be enabled in the YAML file variables.
     - Clang sources can be in git, tar.gz, tar.xz, zip, or managed via antman.
 
 - **Get Kernel Source**
