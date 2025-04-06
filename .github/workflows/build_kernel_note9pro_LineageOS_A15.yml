@@ -461,6 +461,27 @@ jobs:
             patch -p1 < 10_enable_susfs_for_ksu.patch || true
           fi
 
+      - name: Patch Kernel of SUSFS(null)
+        if: env.SUSFS_ENABLE == 'null'
+        run: |
+          cd $GITHUB_WORKSPACE/device_kernel/
+          cp susfs4ksu/kernel_patches/50_add_susfs_in_kernel-$KERNEL_VERSION.patch ./
+
+          patch -p1 < 50_add_susfs_in_kernel-${{ env.KERNEL_VERSION }}.patch || true
+
+          if [[ "${{ env.KERNELSU_NAME }}"  == "KernelSU-Next" ]]; then
+            if [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" && "${{ env.KERNELSU_BRANCH }}" =~ "susfs" ]]; then
+                echo "KernelSU-Next SuSFS Branch detected!"
+            elif [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" ]]; then
+                git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }}-susfs susfs_fixed
+                rsync -av --exclude='.git' susfs_fixed/kernel/ KernelSU-Next/kernel/
+            fi
+          elif [[ "${{ env.KERNELSU_SUS_PATCH }}" == "true" ]]; then
+            cp susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./${{ env.KERNELSU_NAME }}
+            cd ${{ env.KERNELSU_NAME }}
+            patch -p1 < 10_enable_susfs_for_ksu.patch || true
+          fi
+
       - name: Patch Debugger
         if: env.BUILD_DEBUGGER == 'true'
         run: |
