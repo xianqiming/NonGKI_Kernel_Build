@@ -225,7 +225,7 @@ jobs:
           cd $GITHUB_WORKSPACE/device_kernel
           echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
         
-          if [[ "${{ env.SUSFS_ENABLE }}" == "true" ] or [ "${{ env.SUSFS_ENABLE }}" == null ]]; then
+          if [[ "${{ env.SUSFS_ENABLE }}" == "true" ] || [ "${{ env.SUSFS_ENABLE }}" == null ]]; then
             echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
             echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
             echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
@@ -305,7 +305,7 @@ jobs:
           fi
 
           # Set SUSFS
-          if [[ "${{ env.SUSFS_ENABLE }}" == true ] or [ "${{ env.SUSFS_ENABLE }}" == null ]]; then
+          if [[ "${{ env.SUSFS_ENABLE }}" == true ] || [ "${{ env.SUSFS_ENABLE }}" == null ]]; then
             if [[ "${{ env.SUSFS_FIXED }}" == true ]]; then
               if [ -z "${{ env.PATCHES_SOURCE }}" ] || [ -z "${{ env.PATCHES_BRANCH }}" ]; then
                 echo "Please input vaild source and branch!"
