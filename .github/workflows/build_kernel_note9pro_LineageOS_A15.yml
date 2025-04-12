@@ -504,12 +504,6 @@ jobs:
 
           patch -p1 < add_susfs_in_kernel-4.19.patch || true
 
-      - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          key: build-kernel-${{ env.DEVICE_NAME }}${{ env.UPLOADNAME }}
-          max-size: 2G
-
       - name: Build Kernel
         run: |
           MERGE_CONFIG_FILES=("vendor/debugfs.config" "vendor/lahaina_QGKI.config")
