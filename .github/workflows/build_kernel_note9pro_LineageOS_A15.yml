@@ -456,6 +456,7 @@ jobs:
       - name: Patch Kernel of SUSFS
         if: env.SUSFS_ENABLE == 'true'
         run: |
+          echo ""
           echo "=========$GITHUB_WORKSPACE/device_kernel/========="
           cd $GITHUB_WORKSPACE/device_kernel/
           
@@ -465,10 +466,13 @@ jobs:
           echo "=========patch -p1 < 50_add_susfs_in_kernel-${{ env.KERNEL_VERSION }}.patch || true========="
           patch -p1 < 50_add_susfs_in_kernel-${{ env.KERNEL_VERSION }}.patch || true
 
+          cd $GITHUB_WORKSPACE
           echo "=========cp NonGKI_Kernel_Build/[patch_folder]/[patch_file].patch ./========="
           cp NonGKI_Kernel_Build/Patches/50_add_susfs_in_kernel-4.19.patch ./
           echo "=========patch -p1 < [patch_file].patch || true========="
           patch -p1 < 50_add_susfs_in_kernel-4.19.patch || true
+
+          cdcd $GITHUB_WORKSPACE/device_kernel/
           
           if [[ "${{ env.KERNELSU_NAME }}"  == "KernelSU-Next" ]]; then
             if [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" && "${{ env.KERNELSU_BRANCH }}" =~ "susfs" ]]; then
