@@ -78,7 +78,7 @@
   - **KERNELSU_SUS_PATCH** - 如果你的KernelSU不属于KernelSU-Next，并且也没有针对SuSFS的修补分支，可以启用该项目（true），但我们不建议这么做，因为分支KernelSU的魔改情况严重，手动修补已经不能顺应现在的时代了
   - **KPM_ENABLE** - (实验性⚠)启用对SukiSU-Ultra的KPM编译支持，该项为实验项，请小心启用
   - **KPM_PATCH_SOURCE** - (实验性⚠)你需要自行提供patch二进制文件的下载链接
-  - **GENERATE_DTB** - 如果你的内核编译后，需要DTB文件（不是.dtb、.dtb、.dtsi），则可以开启本项自动执行生成DTB步骤
+  - **GENERATE_DTB** - 如果你的内核编译后，需要DTB文件（不是.dtb、.dts、.dtsi），则可以开启本项自动执行生成DTB步骤
   - **GENERATE_CHIP** - 生成DTB文件的对应设备CPU，通常支持qcom、mediatek，但我们不确定其他CPU是否支持
   - **BUILD_DEBUGGER** - 若需要提供出错时的报告可使用该选项，目前提供patch错误rej文件的输出，其他功能可期待未来更新
   - **BUILD_OTHER_CONFIG** - 若你需要合并内核源码中自带的其他.config文件，可启用本项，但是需要自行修改”Build Kernel“中数组MERGE_CONFIG_FILES中的内容
@@ -93,6 +93,7 @@
   - 若有GCC，则需填写GCC 64位和32位的版本，对于GCC我们建议git形式，但同时支持tar.gz和zip
   - 你可以选择仅使用GCC而不启用Clang，并且GCC允许使用系统默认安装的GCC，可在yaml文件变量中开启
   - 根据本人的使用情况，我们对于Clang支持为git、tar.gz、tar.xz、zip以及上述提到的antman管理软件
+  - 如果你计划使用[Proton Clang 13](https://github.com/kdrag0n/proton-clang)，则需要在将系统设置为**Ubuntu-20.04**（我们不推荐Arch Linux，可能会导致glibc问题），我们已经预先适配了Proton Clang Toolchain，会在检测到Proton Clang后自动识别附带的GCC，但也记得不要填写GCC
 
 - **Get Kernel Source**
   - 正常来说内核源码都可以通过Git方式获得，所以基本不需要修改

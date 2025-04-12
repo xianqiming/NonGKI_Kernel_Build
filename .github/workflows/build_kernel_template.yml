@@ -110,7 +110,7 @@ jobs:
           UBUNTU_VERSION=$(lsb_release -sr)
           sudo apt-get update
 
-          if [ $UBUNTU_VERSION == "22.04" ]; then
+          if [ $UBUNTU_VERSION == "22.04" ] || [ $UBUNTU_VERSION == "20.04" ]; then
             sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler
             sudo apt-get install p7zip p7zip-full -y
             if [ "${{ env.PYTHON_VERSION }}" == "3" ]; then
@@ -144,7 +144,11 @@ jobs:
           cd $GITHUB_WORKSPACE
 
           # Set GCC Aarch64
-          if [ -z "${{ env.GCC_64_SOURCE }}" ]; then
+          if [ "${{ env.CLANG_SOURCE }}" == *proton* ]; then
+            echo "Detected Proton Clang. Not use GCC Source."
+            GCC_64_BIN=aarch64-linux-gnu-
+            echo "GCC_64=CROSS_COMPILE=$GCC_64_BIN" >> $GITHUB_ENV
+          elif [ -z "${{ env.GCC_64_SOURCE }}" ]; then
             echo "Not set GCC 64!"
           else
             if [[ "${{ env.GCC_64_SOURCE }}" == *".git" ]]; then
@@ -166,7 +170,11 @@ jobs:
 
 
           # Set GCC ARM32
-          if [ -z "${{ env.GCC_32_SOURCE }}" ]; then
+          if [ "${{ env.CLANG_SOURCE }}" == *proton* ]; then
+            echo "Detected Proton Clang. Not use GCC Source."
+            GCC_32_BIN=arm-linux-gnueabi-
+            echo "GCC_32=CROSS_COMPILE=$GCC_32_BIN" >> $GITHUB_ENV
+          elif [ -z "${{ env.GCC_32_SOURCE }}" ]; then
             echo "Not set GCC 32!"
           else
             if [[ "${{ env.GCC_32_SOURCE }}" == *".git" ]]; then
@@ -561,16 +569,49 @@ jobs:
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
 
           if [[ -f "$IMAGE_DIR/Image.gz-dtb" ]]; then
-            echo "Not supported for old kernel !"
+            if [ -f "include/linux/set_memory.h" ]; then
+                    if [ -d "out/arch/arm64/boot/dts" ]; then
+                    rm -f $IMAGE_DIR/Image.gz-dtb
+                    rm -f $IMAGE_DIR/Image.gz
+                    cp patch $IMAGE_DIR/
+                    cd $IMAGE_DIR/
+                    ./patch
+                    rm -f Image
+                    mv oImage Image
+                    gzip -c Image > Image.gz
+                    cat Image.gz dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
+                    echo "Hook Image successfully !"
+                elif [ -d "out/arch/arm64/boot/vendor/dts" ]; then
+                    if [ -d "out/arch/arm64/boot/dts" ]; then
+                    rm -f $IMAGE_DIR/Image.gz-dtb
+                    rm -f $IMAGE_DIR/Image.gz
+                    cp patch $IMAGE_DIR/
+                    cd $IMAGE_DIR/
+                    ./patch
+                    rm -f Image
+                    mv oImage Image
+                    gzip -c Image > Image.gz
+                    cat Image.gz vendor/dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
+                    echo "Hook Image successfully !"
+                else
+                    echo "Not found dts folder, abort."
+                fi
+            else
+                echo "Not supported for your kernel !"
+            fi
           elif [[ -f "$IMAGE_DIR/Image.gz" ]]; then
             rm -f $IMAGE_DIR/Image.gz
             cp patch $IMAGE_DIR/
+            cd $IMAGE_DIR/
             ./patch
+            rm -f Image
+            mv oImage Image
             gzip -c Image > Image.gz
             echo "Hook Image successfully !"
           elif [[ -f "$IMAGE_DIR/Image" ]]; then
             cp patch $IMAGE_DIR/
             ./patch
+            mv oImage Image
             echo "Hook Image successfully !"
           fi
 

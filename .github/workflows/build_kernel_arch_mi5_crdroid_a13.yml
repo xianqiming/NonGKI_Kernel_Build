@@ -77,7 +77,7 @@ jobs:
         run: |
           cat /etc/os-release
 
-          pacman -Syyu
+          pacman -Syyu --noconfirm
           pacman -S git base-devel systemd patch ccache automake flex lzop bison gperf zip curl bzip2 squashfs-tools pngcrush schedtool make optipng maven pwgen minicom bc unzip 7zip zstd binutils gcc python3 wget which --noconfirm
 
       - name: Install GNU GCC
