@@ -456,13 +456,18 @@ jobs:
       - name: Patch Kernel of SUSFS
         if: env.SUSFS_ENABLE == 'true'
         run: |
+          echo "$GITHUB_WORKSPACE/device_kernel/"
           cd $GITHUB_WORKSPACE/device_kernel/
+          
+          echo "susfs4ksu/kernel_patches/50_add_susfs_in_kernel-$KERNEL_VERSION.patch ./"
           cp susfs4ksu/kernel_patches/50_add_susfs_in_kernel-$KERNEL_VERSION.patch ./
-
+          
+          echo "patch -p1 < 50_add_susfs_in_kernel-${{ env.KERNEL_VERSION }}.patch || true"
           patch -p1 < 50_add_susfs_in_kernel-${{ env.KERNEL_VERSION }}.patch || true
-
+          
           if [[ "${{ env.KERNELSU_NAME }}"  == "KernelSU-Next" ]]; then
             if [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" && "${{ env.KERNELSU_BRANCH }}" =~ "susfs" ]]; then
+                echo "Found KernelSU-Next"
                 echo "KernelSU-Next SuSFS Branch detected!"
             elif [[ "${{ env.KERNELSU_SOURCE }}" =~ ".sh" ]]; then
                 git clone ${{ env.KERNELSU_SOURCE }} -b ${{ env.KERNELSU_BRANCH }}-susfs susfs_fixed
