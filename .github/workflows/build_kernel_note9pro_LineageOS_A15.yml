@@ -1,4 +1,4 @@
-name: Build Kernel Template (Cannot be used for compilation directly)
+name: Build Kernel Redmi Note9pro (Based-Lineageos A15) with KSU_next and SUSFS
 on:
   workflow_call:
   workflow_dispatch:
