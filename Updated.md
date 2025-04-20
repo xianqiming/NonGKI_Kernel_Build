@@ -1,4 +1,31 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 23**
+    - 增加 Ubuntu 20.04 示例YAML文件 方案
+    - 增加 说明文件 部分内容
+
+- **Ver.1.4 Fixed 22**
+    - 修改 小米11 Ultra HyperOS A14 KernelSU分支
+
+- **Ver.1.4 Fixed 21**
+    - 修改 示例YAML文件 上传部分步骤名称
+
+- **Ver.1.4 Fixed 20**
+    - 修改 示例YAML文件 原始默认Free disk space方案使其可以获得更多的空间
+
+- **Ver.1.4 Fixed 19**
+    - 撤回 示例YAML文件 原始默认Free disk space方案
+    - 增加 小米11 Ultra Free disk space方案
+    - 完善 说明文件 部分内容的说明
+
+- **Ver.1.4 Fixed 18**
+    - 删除 示例YAML文件 原始默认Free disk space方案
+    - 增加 示例YAML文件 Remove useless tools方案用于释放空间
+    - 增加 示例YAML文件 对于释放空间的变量用于独立识别
+    - 增加 小米11 Ultra HyperOS A14 设备
+    - 完善 Backport patch补丁 对于5.4设备的判定和修补
+    - 增加 说明文件 对应的内容
+    - 增加 支持列表 新设备内容
+
 - **Ver.1.4 Fixed 17**
     - 补充 说明文件 部分说明内容
 

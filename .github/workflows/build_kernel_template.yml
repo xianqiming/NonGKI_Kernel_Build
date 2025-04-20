@@ -17,6 +17,7 @@ env:
   GENERATE_CHIP: "qcom" # only supported for qcom and mediatek.
   BUILD_DEBUGGER: "false" # Output build errors.
   BUILD_OTHER_CONFIG: "false" # Merge config files.
+  FREE_MORE_SPACE: "false" # if u want get more space, enabled it.
 
 
 jobs:
@@ -28,6 +29,28 @@ jobs:
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
     steps:
+      - name: Free Disk Space (Ubuntu)
+        if: env.FREE_MORE_SPACE == 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: true
+
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Remove useless tools
+        run: |
+          sudo rm -rf /opt/hostedtoolcache
+          df -h
+
       - uses: actions/checkout@v4
       - name: Prepare Configuration
         run: |
@@ -75,32 +98,14 @@ jobs:
           # Move patch folder to tmp
           mv $GITHUB_WORKSPACE/Patches /tmp/
 
-      - name: Free Disk Space (Ubuntu)
-        if: env.LXC_ENABLE == 'true'
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: true
-
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: false
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-
       - name: Maximize build space
-        if: env.LXC_ENABLE != 'true'
         uses: easimon/maximize-build-space@master
         with:
-          root-reserve-mb: 20480
-          temp-reserve-mb: 4096
+          root-reserve-mb: 2048
+          temp-reserve-mb: 64
           swap-size-mb: 8192
           remove-dotnet: "true"
-          remove-android: "false"
+          remove-android: "true"
           remove-haskell: "true"
           remove-codeql: "true"
 
@@ -761,7 +766,7 @@ jobs:
 
           rm -f $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
 
-      - name: Upload Build Artifacts For Boot Image
+      - name: Upload Build Artifacts For Anykernel3
         if: env.PACK_METHOD == 'Anykernel3'
         uses: actions/upload-artifact@v4
         with:
@@ -769,7 +774,7 @@ jobs:
           path: |
             device_kernel/${{ env.PACK_NAME }}
 
-      - name: Upload Build Artifacts For Anykernel3
+      - name: Upload Build Artifacts For Boot Image
         if: env.PACK_METHOD == 'MKBOOTIMG'
         uses: actions/upload-artifact@v4
         with:

@@ -1,4 +1,4 @@
-name: Build Kernel Arch Template (Cannot be used for compilation directly)
+name: Build Kernel (Ubuntu 20.04) Template (Cannot be used for compilation directly)
 on:
   workflow_call:
   workflow_dispatch:
@@ -17,13 +17,14 @@ env:
   GENERATE_CHIP: "qcom" # only supported for qcom and mediatek.
   BUILD_DEBUGGER: "false" # Output build errors.
   BUILD_OTHER_CONFIG: "false" # Merge config files.
+  FREE_MORE_SPACE: "false" # if u want get more space, enabled it.
 
 
 jobs:
   build:
-    name: Build Kernel by ${{ github.actor }} in Arch Linux
+    name: Build Kernel by ${{ github.actor }}
     runs-on: ubuntu-latest
-    container: archlinux/archlinux:latest
+    container: ubuntu:focal
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
@@ -31,6 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Prepare Configuration
+        shell: bash
         run: |
           CONFIG_ENV=$(grep -w "CONFIG_ENV" Profiles/${{ env.PROFILE_NAME }} | head -n 1 | cut -d "=" -f 2)
           CONFIG_LIST=(
@@ -77,33 +79,59 @@ jobs:
           mv $GITHUB_WORKSPACE/Patches /tmp/
 
       - name: Install necessary packages
+        shell: bash
         run: |
-          cat /etc/os-release
+          apt-get update
 
-          pacman -Syyu --noconfirm
-          pacman -S git base-devel systemd wget rustup curl patch ccache automake flex lzop bison gperf zip curl bzip2 squashfs-tools pngcrush schedtool make optipng maven pwgen minicom bc unzip 7zip zstd binutils gcc python3 wget which --noconfirm
+          # Set locale
+          ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+          DEBIAN_FRONTEND=noninteractive apt-get install tzdata lsb-release -y
+          dpkg-reconfigure --frontend noninteractive tzdata
 
-          # Update Rust Toolchain
-          rustup default stable
+          lsb_release -a
+          UBUNTU_VERSION=$(lsb_release -sr)
+
+          if [ $UBUNTU_VERSION == "22.04" ] || [ $UBUNTU_VERSION == "20.04" ]; then
+            apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler wget curl -y
+            apt-get install p7zip p7zip-full -y
+            if [ "${{ env.PYTHON_VERSION }}" == "3" ]; then
+                apt install python2 python3 -y
+            elif [ "${{ env.PYTHON_VERSION }}" == "2" ]; then
+                apt install python2 -y
+                rm /usr/bin/python
+                ln -s /usr/bin/python2.7 /usr/bin/python
+            else
+                echo "You need choose a python version."
+                false
+            fi
+          else
+            apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler python3 -y
+            apt-get install zstd libc6 binutils libc6-dev-i386 gcc g++ p7zip p7zip-full wget curl -y
+          fi
 
       - name: Install GNU GCC
+        shell: bash
         if: env.GCC_GNU == 'true'
         run: |
           if [ -z ${{ env.GCC_64_SOURCE }} ] && [ -z ${{ env.GCC_32_SOURCE }} ]; then
-            pacman -S aarch64-linux-gnu-binutils aarch64-linux-gnu-gcc aarch64-linux-gnu-glibc aarch64-linux-gnu-linux-api-headers --noconfirm
-            pacman -S arm-none-eabi-binutils arm-none-eabi-gcc --noconfirm
+            apt-get install binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi -y
             echo "GCC_64=CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
-            echo "GCC_32=CROSS_COMPILE_ARM32=arm-none-eabi-" >> $GITHUB_ENV
+            echo "GCC_32=CROSS_COMPILE_ARM32=arm-linux-gnueabi-" >> $GITHUB_ENV
           else
             echo "You needn't gcc powered by system."
           fi
 
       - name: Set Compile Environment
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE
 
           # Set GCC Aarch64
-          if [ -z "${{ env.GCC_64_SOURCE }}" ]; then
+          if [ "${{ env.CLANG_SOURCE }}" == *proton* ]; then
+            echo "Detected Proton Clang. Not use GCC Source."
+            GCC_64_BIN=aarch64-linux-gnu-
+            echo "GCC_64=CROSS_COMPILE=$GCC_64_BIN" >> $GITHUB_ENV
+          elif [ -z "${{ env.GCC_64_SOURCE }}" ]; then
             echo "Not set GCC 64!"
           else
             if [[ "${{ env.GCC_64_SOURCE }}" == *".git" ]]; then
@@ -125,7 +153,11 @@ jobs:
 
 
           # Set GCC ARM32
-          if [ -z "${{ env.GCC_32_SOURCE }}" ]; then
+          if [ "${{ env.CLANG_SOURCE }}" == *proton* ]; then
+            echo "Detected Proton Clang. Not use GCC Source."
+            GCC_32_BIN=arm-linux-gnueabi-
+            echo "GCC_32=CROSS_COMPILE=$GCC_32_BIN" >> $GITHUB_ENV
+          elif [ -z "${{ env.GCC_32_SOURCE }}" ]; then
             echo "Not set GCC 32!"
           else
             if [[ "${{ env.GCC_32_SOURCE }}" == *".git" ]]; then
@@ -171,6 +203,7 @@ jobs:
           fi
 
       - name: Get Kernel Source
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE
           git clone --recursive ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_BRANCH }} device_kernel --depth=1
@@ -183,6 +216,7 @@ jobs:
           echo "KERNEL_VERSION=$(head -n 3 device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')" >> $GITHUB_ENV
 
       - name: Set KSU and SUSFS for DEFCONFIG
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
@@ -211,6 +245,7 @@ jobs:
           fi
 
       - name: Set Pack Method and KernelSU and SUSFS
+        shell: bash
         run: |
           # Variable
           SUSFS_SOURCE=https://gitlab.com/simonpunk/susfs4ksu.git
@@ -305,6 +340,7 @@ jobs:
           fi
 
       - name: Patch Kernel for no-kprobe
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE
           KERNEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $1}')
@@ -363,6 +399,7 @@ jobs:
           fi
 
       - name: Extra Kernel Options
+        shell: bash
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
@@ -374,6 +411,7 @@ jobs:
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/scripts/dtc
           wget https://android.googlesource.com/platform/system/libufdt/+archive/refs/heads/main/utils/src.tar.gz
@@ -390,6 +428,7 @@ jobs:
 
       - name: Setup LXC (Experiment)
         if: env.LXC_ENABLE == 'true'
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           rm -rf lxc
@@ -421,6 +460,7 @@ jobs:
 
       - name: Patch Kernel of SUSFS
         if: env.SUSFS_ENABLE == 'true'
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
           cp susfs4ksu/kernel_patches/50_add_susfs_in_kernel-$KERNEL_VERSION.patch ./
@@ -442,6 +482,7 @@ jobs:
 
       - name: Patch Debugger
         if: env.BUILD_DEBUGGER == 'true'
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
           mapfile -t REJ_FILES < <(find . -type f -name "*.rej")
@@ -458,6 +499,7 @@ jobs:
 
       - name: Fixed Kernel Patch
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_FIXED == 'true'
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
           cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
@@ -471,6 +513,7 @@ jobs:
           max-size: 2G
 
       - name: Build Kernel
+        shell: bash
         run: |
           MERGE_CONFIG_FILES=("vendor/debugfs.config" "vendor/lahaina_QGKI.config")
           export PATH=$GITHUB_WORKSPACE/clang-custom/bin:$PATH
@@ -530,6 +573,7 @@ jobs:
 
       - name: KPM Patcher (Experiment)
         if: env.KPM_ENABLE == 'true'
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
@@ -596,6 +640,7 @@ jobs:
 
       - name: Make Anykernel3 Flasher
         if: env.PACK_METHOD == 'Anykernel3'
+        shell: bash
         run: |
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
           TIME=$(date +"%Y%m%d%H%M%S")
@@ -664,6 +709,7 @@ jobs:
 
       - name: Make Latest Boot Image
         if: env.PACK_METHOD == 'MKBOOTIMG'
+        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
@@ -712,7 +758,7 @@ jobs:
 
           rm -f $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
 
-      - name: Upload Build Artifacts For Anykernel3
+      - name: Upload Build Artifacts For Boot Image
         if: env.PACK_METHOD == 'Anykernel3'
         uses: actions/upload-artifact@v4
         with:
@@ -720,7 +766,7 @@ jobs:
           path: |
             device_kernel/${{ env.PACK_NAME }}
 
-      - name: Upload Build Artifacts For Boot Image
+      - name: Upload Build Artifacts For Anykernel3
         if: env.PACK_METHOD == 'MKBOOTIMG'
         uses: actions/upload-artifact@v4
         with:
