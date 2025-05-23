@@ -1,4 +1,75 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 46**
+    - 增加 支持列表 地区显示
+    - 修改 中兴 AZ201T 设备名称
+
+- **Ver.1.4 Fixed 45**
+    - 修改 支持列表 部分说明内容并将部分机型从Beta转为Stable维护状态
+
+- **Ver.1.4 Fixed 44**
+    - 增加 谷歌Pixel 9 Series Image文件lz4压缩方式
+
+- **Ver.1.4 Fixed 43**
+    - 增加 示例YAML文件 有关KPM CONFIG项额外需求判定
+    - 移植 小米平板4(Plus) YAML 有关KPM CONFIG项额外需求判定
+
+- **Ver.1.4 Fixed 42**
+    - 更新 一加8 OOS13 的KernelSU分支
+    - 增加 小米平板4(Plus) YAML SUSFS更新步骤
+
+- **Ver.1.4 Fixed 41**
+    - 修改 支持列表 小米Mix2s KPM支持
+
+- **Ver.1.4 Fixed 40**
+    - 增加 小米Mix2s KPM Fixed补丁
+
+- **Ver.1.4 Fixed 39**
+    - 增加 示例YAML文件 KPM Patch默认链接
+    - 修改 说明文件 有关KPM变量的说明
+    - 移植 小米Mix2s KPM相关功能
+    - 删除 Older YAML 无效变量
+
+- **Ver.1.4 Fixed 38**
+    - 修正 示例YAML SUSFS更新无法执行的错误
+    - 修正 小米Mix2s SUSFS更新无法执行的错误
+
+- **Ver.1.4 Fixed 37**
+    - 修改 支持列表 有关SUSFS更新的说明
+    - 增加 示例YAML文件 SUSFS更新步骤
+    - 增加 示例ENV文件 SUSFS更新步骤所需变量
+    - 增加 说明文件 有关SUSFS更新的说明
+    - 增加 英文说明文件 缺失的内容
+    - 启用 小米Mix2s SUSFS更新至v1.5.7补丁
+
+- **Ver.1.4 Fixed 36**
+    - 修改 支持列表 有关SUSFS更新的说明
+
+- **Ver.1.4 Fixed 35**
+    - 修正 支持列表 黑鲨4 对应KernelSU分支错误
+    - 修正 发布列表 黑鲨4 对应KernelSU分支错误
+
+- **Ver.1.4 Fixed 34**
+    - 增加 小米Mix2s 有关手动修补所需config项目的判定
+    - 增加 一加8 Nameless 有关手动修补所需config项目的判定
+    - 切换 一加8 Nameless KernelSU分支至susfs-v1.5.7
+    - 启用 一加8 Nameless SUSFS更新至v1.5.7补丁
+
+- **Ver.1.4 Fixed 33**
+    - 增加 示例YAML文件 有关手动修补所需config项目的判定
+    - 增加 小米平板4(Plus) 有关手动修补所需config项目的判定
+    - 增加 黑鲨4 有关手动修补所需config项目的判定
+    - 切换 黑鲨4 KernelSU分支至rsuntk
+    - 修改 支持列表 设备说明部分内容
+    - 修改 发布列表 设备说明部分内容
+
+- **Ver.1.4 Fixed 32**
+    - 修正 小米平板4(Plus) 设备编译错误问题
+    - 修正 小米Mix2s 设备编译错误问题
+
+- **Ver.1.4 Fixed 31**
+    - 修正 发布列表 设备说明部分内容
+    - 修正 支持列表 设备说明部分内容
+
 - **Ver.1.4 Fixed 30**
     - 撤回 一加8 Nameless KernelSU分支至susfs-v1.5.7
 

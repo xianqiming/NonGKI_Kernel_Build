@@ -80,7 +80,7 @@ jobs:
         run: |
           cat /etc/os-release
 
-          pacman -Syyu
+          pacman -Syyu --noconfirm
           pacman -S git base-devel systemd wget rustup curl patch ccache automake flex lzop bison gperf zip curl bzip2 squashfs-tools pngcrush schedtool make optipng maven pwgen minicom bc unzip 7zip zstd binutils gcc python3 wget which --noconfirm
 
           # Update Rust Toolchain
@@ -357,6 +357,7 @@ jobs:
           echo "CONFIG_KPROBES=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_MODULES=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          sed -i '1i #include <linux/magic.h>' fs/susfs.c
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
@@ -559,6 +560,9 @@ jobs:
           elif [[ -f "$IMAGE_DIR/Image.gz" ]]; then
             cp -fp $IMAGE_DIR/Image.gz tmp
             echo "Found Image.gz !"
+          elif [[ -f "$IMAGE_DIR/Image.lz4" ]]; then
+            cp -fp $IMAGE_DIR/Image.lz4 tmp
+            echo "Found Image.lz4 !"
           elif [[ -f "$IMAGE_DIR/Image" ]]; then
             # gzip -c $IMAGE_DIR/Image > $IMAGE_DIR/Image.gz
             # cp -fp $IMAGE_DIR/Image.gz tmp
