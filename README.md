@@ -29,7 +29,7 @@
 **CLANG_BRANCH** - Clang所需分支，但前提是git  
 
 **GCC_GNU** - 若你的内核需要GCC，但不需要自定义GCC，可通过选项启用系统提供的GNU-GCC，true或false  
-**GCC_XX_SOURCE** - GCC所在之处，但支持git、tar.gz、zip  
+**GCC_XX_SOURCE** - GCC所在之处，若你是ARMV7A设备，请仅填写GCC_32，支持git、tar.gz、tar.xz、zip  
 **GCC_XX_BRANCH** - GCC所需分支，但前提是git  
 
 **DEFCONFIG_SOURCE** - 若有自定义DEFCONFIG文件需求可提供DEFCONFIG文件的下载地址  
@@ -74,20 +74,21 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - **PATCHES_SOURCE** - 使用susfs不可避免需要手动修补，这是用来填写你存放patch的github项目地址，当然如果你不采用susfs，则不需要填写，可参考我的用于Patch的git项目
   - **PATCHES_BRANCH** - patch项目所需的分支，一般为main
   - **HOOK_METHOD** - 我们提供了两种方式用于KernelSU手动修补：
-    - **normal**代表最常见的修补方式，一般不会出问题
-    - [vfs](https://github.com/backslashxx/KernelSU/issues/5)是最新的最小化修补方式，似乎会提高隐藏，但是在低版本clang下可能会有ISO编译规范问题，且对于版本≤4.9的内核的支持存在问题，仅更高版本内核建议启用
+    - **normal**代表最常见的修补方式，一般不会出问题，仅适合内核版本≥3.18（ARM64）设备
+    - [vfs](https://github.com/backslashxx/KernelSU/issues/5)是最新的最小化修补方式，似乎会提高隐藏，但是在低版本clang下可能会有ISO编译规范问题，目前已经支持包括3.4版本内核为最低版本的所有内核
   - **PROFILE_NAME** - 填写成你修改好的env环境变量文件的名称，例如codename_rom_template.env
   - **KERNELSU_SUS_PATCH** - 如果你的KernelSU不属于KernelSU-Next，并且也没有针对SuSFS的修补分支，可以启用该项目（true），但我们不建议这么做，因为分支KernelSU的魔改情况严重，手动修补已经不能顺应现在的时代了
   - **KPM_ENABLE** - (实验性⚠)启用对SukiSU-Ultra的KPM编译支持，该项为实验项，请小心启用
   - **KPM_PATCH_SOURCE** - (实验性⚠)通常你不需要自行提供patch二进制下载链接，除非你有额外需求
   - **GENERATE_DTB** - 如果你的内核编译后，需要DTB文件（不是.dtb、.dts、.dtsi），则可以开启本项自动执行生成DTB步骤
-  - **GENERATE_CHIP** - 生成DTB文件的对应设备CPU，通常支持qcom、mediatek，但我们不确定其他CPU是否支持
+  - **GENERATE_CHIP** - 设定对应设备CPU，并提供给DTB和KPM功能用于识别，通常支持qcom、mediatek，但我们不确定其他CPU是否支持
   - **BUILD_DEBUGGER** - 若需要提供出错时的报告可使用该选项，目前提供patch错误rej文件的输出，其他功能可期待未来更新
   - **BUILD_OTHER_CONFIG** - 若你需要合并内核源码中自带的其他.config文件，可启用本项，但是需要自行修改”Build Kernel“中数组MERGE_CONFIG_FILES中的内容
   - **FREE_MORE_SPACE** - 若你认为当前的空间不足，则可以启用该项来获得更多空间释放，默认情况下可获得约88GB空间，启用本项可获得102GB空间，但执行时间会增加1-2分钟（仅限默认YAML，Arch Linux或Ubuntu 20.04仅可获得14-20GB空间）
+  - **REKERNEL_ENABLE** - 如果你认为你的设备具备运行[Re:Kernel](https://github.com/Sakion-Team/Re-Kernel)的条件，并且你需要Re:Kernel，则可以启用本项，true或者false
 
 - **runs-on: ubuntu-XX.XX** 
-  - 不同内核所需系统不同，默认为22.04，我们预先提供了两套包安装选项（适配22.04和24.04），我们通过检测系统版本进行决定包安装
+  - 不同内核所需系统不同，默认为22.04，我们预先提供了两套包安装选项（适配20.04、22.04和24.04），我们通过检测系统版本进行决定包安装
   - 若使用Arch Linux YAML则该功能不适用，请不要修改
 
 - **Set Compile Environment**
@@ -96,7 +97,7 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 若有GCC，则需填写GCC 64位和32位的版本，对于GCC我们建议git形式，但同时支持tar.gz和zip
   - 你可以选择仅使用GCC而不启用Clang，并且GCC允许使用系统默认安装的GCC，可在yaml文件变量中开启
   - 根据本人的使用情况，我们对于Clang支持为git、tar.gz、tar.xz、zip以及上述提到的antman管理软件
-  - 如果你计划使用[Proton Clang 13](https://github.com/kdrag0n/proton-clang)，则需要在将系统设置为**Ubuntu-20.04**（我们不推荐Arch Linux，可能会导致glibc问题），我们已经预先适配了Proton Clang Toolchain，会在检测到Proton Clang后自动识别附带的GCC，但也记得不要填写GCC
+  - 如果你计划使用[Proton Clang 13](https://github.com/kdrag0n/proton-clang)，则需要使用Older YAML（我们不推荐Arch Linux，可能会导致glibc问题），我们已经预先适配了Proton Clang Toolchain，会在检测到Proton Clang后自动识别附带的GCC，但也记得不要填写GCC
 
 - **Get Kernel Source**
   - 正常来说内核源码都可以通过Git方式获得，所以基本不需要修改
@@ -118,11 +119,13 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 自动部署LXC，但许多内核并不支持该方式，可用于Fork后自行尝试，在本人的官方编译中应该不会选择支持LXC
   
 - **Patch Kernel**
-  - 分为两个部分，主要的SUSFS修补和补充修补（Patch Kernel of SUSFS 和 Fixed Kernel Patch）
-  - 一切基于env中SUSFS_ENABLE和env.SUSFS_FIXED为true，但不一定都为true
-  - SUSFS修补大概率会产生问题，因此通常情况下需要补充修补
+  - 分为三个部分，SUSFS修补、Re:Kernel修补以及补充修补（Patch Kernel of SUSFS 、Patch Kernel of Re:Kernel 和 Fixed Kernel Patch）
+  - 一切基于env.SUSFS_ENABLE、env.REKERNEL_ENABLE 和 env.SUSFS_FIXED为true，但不一定都为true
+  - SUSFS修补 和 Re:Kernel修补 大概率会产生问题，因此通常情况下需要补充修补
+  - 若你为**4.9**内核，在使用默认的Re:Kernel补丁修补后无法正常识别到，可切换至Re:Kernel Fixed补丁尝试
   - 补充修补需要执行你重新制作的patch补丁（步骤为：Fixed Kernel Patch）
   - 切记填写好**PATCHES_SOURCE**和**PATCHES_BRANCH**，否则会导致错误
+  - 默认SUSFS_FIXED启用后，通过PATCHES_SOURCE和PATCHES_BRANCH所git下来的目录的名称叫**NonGKI_Kernel_Patches**，即便你的项目不是这个名称
   
 - **Update SUSFS Version**
   - 旨在将停止更新的版本v1.5.5进行更新SUSFS v1.5.7的操作
@@ -131,7 +134,50 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 由变量控制是否执行该步骤
   
 - **KPM Patcher (Experiment)**
-  - 为SukiSU-Ultra提供KPM内核Patch功能，该功能目前暂不支持内核版本≤4.9的设备，若你已经反向移植部分功能用于KPM功能，请自行参照修改这个部分，但我们对实验性功能不提供支持
+  - 为SukiSU-Ultra提供KPM内核Patch功能，该功能目前暂不支持内核版本<4.9的设备，4.9内核可执行backport_set_memory.patch移植set_memory后启用KPM
   - 该功能在**Arch Linux**下可以正常执行，在**Ubuntu22.04下异常**，建议使用**最新版Ubuntu或者Arch Linux YAML**
+
+## Patches/补丁介绍.patch
+以下是对Patches目录中包含补丁的介绍  
+
+- **normal_patches.sh**
+  - 变量：HOOK_METHOD -> normal
+  - 用于执行Non-GKI内核的手动修补，也是KernelSU官网Non-GKI内核手动修补部分的内核，仅适合内核版本≥3.18（ARM64）设备
+  - 参考：https://kernelsu.org/zh_CN/guide/how-to-integrate-for-non-gki.html
+
+- **vfs_hook_patches.sh**
+  - 变量：HOOK_METHOD -> vfs
+  - 用于执行backslashxx大佬最新实现的最小化手动修补(Syscall)功能，对旧版本编译器兼容性不是很好，但适配支持了内核版本≤3.18（ARMV7A）设备，因此全内核可用
+  - 参考：https://github.com/backslashxx/KernelSU/issues/5
+
+- **extra_patches.sh** 
+  - 自动判断内核版本执行
+  - 用于执行对缺少SELinux相关权限的旧版本内核（内核版本≤4.9）
+  - 参考：https://github.com/sticpaper/android_kernel_xiaomi_msm8998-ksu/commit/646d0c8
+  
+- **backport_patches.sh** 
+  - 自动判断内核版本执行
+  - 用于执行对Non-GKI内核的反向移植，除了KernelSU-Next和SukiSU-Ultra可以实现自动反向移植外，其他的分支均无法实现
+  - 参考：https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
+  
+- **susfs_upgrade_to_157.patch**
+  - 变量：(env文件)SUSFS_UPDATE -> true
+  - 对停止更新的Non-GKI设备的SuSFS进行更新，从v1.5.5更新至v1.5.7
+  - 参考：https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/compare/c7d82bf8607704c22a8a869c4611c7cf3d22ce31..1ea2cbd7659167e62d2265632710f084c45f3ca1
+  
+- **temp_dtbo.patch**
+  - 变量：(env文件)HAVE_NO_DTBO -> true 并且 (env文件)HAVE_NO_DTBO_TOOL -> false
+  - 用于生成dtbo.img步骤所需的补丁文件，会在需要时自动使用
+  - 参考：https://review.lineageos.org/c/LineageOS/android_kernel_xiaomi_gauguin/+/372909/2
+
+- **backport_set_memory.patch**
+  - 需要**手动**填写执行
+  - 用于对内核版本≤4.9的设备移植set_memory功能的补丁文件，因为缺少大量测试，因此只作为测试补丁，且该补丁仅用于需要使用SukiSU-Ultra的KPM功能的情况下
+  - 参考：暂无
+
+- **Rekernel/rekernel-X.X.patch**
+  - 变量：REKERNEL_ENABLE -> true
+  - 让内核支持Re:Kernel的补丁文件，YAML会根据你的内核版本自动判断使用的补丁，不过若你是4.9内核且当前补丁不可用，就需要将补丁修改成rekernel-4.9-for-fixed.patch后尝试，不支持内核版本≤4.4设备
+  - 参考：https://github.com/Sakion-Team/Re-Kernel/blob/main/Integrate/README_CN.md
   
 最后提醒⚠️：非上述提示的步骤理论上不需要你做任何修改，我已经尽可能实现多情况判定

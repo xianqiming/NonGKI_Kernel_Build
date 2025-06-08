@@ -1,7 +1,182 @@
 ## 项目更新日志
+- **Ver.1.4 Fixed 86**
+    - 修正 示例YAML文件 生成DTB 对vendor目录下生成的寻址错误
+    - 修正 示例YAML文件 检测Proton并设置CROSS_COMPILE的编写错误
+    - 修正 一加9 Pro OOS11 Lily 生成DTB 对vendor目录下生成的寻址错误
+    - 修正 小米8 NGK 检测Proton并设置CROSS_COMPILE的编写错误
+
+- **Ver.1.4 Fixed 85**
+    - 增加 小米8 NGK
+
+- **Ver.1.4 Fixed 84**
+    - 修正 示例YAML 生成DTB 对于.dtb存在文件夹的检测顺序
+    - 修正 一加9 Pro OOS11 Lily 生成DTB 对于.dtb存在文件夹的检测顺序
+
+- **Ver.1.4 Fixed 83**
+    - 修正 支持列表 部分KernelSU分支信息
+
+- **Ver.1.4 Fixed 82**
+    - 启用 一加9 Pro OOS11 Lily 生成DTB
+
+- **Ver.1.4 Fixed 81**
+    - 修正 小米8 Lawrun 编译错误
+
+- **Ver.1.4 Fixed 80**
+    - 切换 小米Mix2 MIUI12.5 YAML 至 Arch Linux YAML
+
+- **Ver.1.4 Fixed 79**
+    - 增加 示例YAML文件 GCC针对tar.xz格式的支持
+    - 修正 说明文件 有关GCC的tar.xz格式的支持说明
+    - 移植 小米Mix2 MIUI12.5 GCC针对tar.xz格式的支持
+
+- **Ver.1.4 Fixed 78**
+    - 修正 小米8 MIUI12 标题错误
+
+- **Ver.1.4 Fixed 77**
+    - 修正 小米Mix2 MIUI12.5 编译错误
+    - 修正 小米8 Lawrun 编译错误
+    - 修正 小米6 MIUI12 编译错误
+    - 修正 一加9 Pro OOS11 Omega 编译错误
+    - 修正 小米8 MIUI12 未开启SUSFS导致编译错误
+
+- **Ver.1.4 Fixed 76**
+    - 切换 小米8 MIUI12 KernelSU分支切换至rsuntk
+    - 切换 小米8 Lawrun KernelSU分支切换至rsuntk
+    - 切换 小米6 MIUI12 KernelSU分支切换至rsuntk
+    - 切换 一加9 Pro OOS11 Lily KernelSU分支切换至rsuntk
+    - 切换 一加9 Pro OOS11 Omega KernelSU分支切换至rsuntk
+    - 修正 小米Mix2 MIUI12.5 编译错误
+
+- **Ver.1.4 Fixed 75**
+    - 增加 小米8 MIUI12
+    - 增加 小米8 Lawrun
+    - 增加 小米6 MIUI12
+    - 增加 小米Mix2 MIUI12.5
+    - 增加 一加9 Pro OOS11 Lily
+    - 增加 一加9 Pro OOS11 Omega
+
+- **Ver.1.4 Fixed 74**
+    - 关闭 小米Mix2s LXC功能
+    - 修正 OPPO K9 Pro 编译错误
+
+- **Ver.1.4 Fixed 73**
+    - 修正 OPPO K9 Pro 标题
+    - 修正 OPPO K9 Pro 编译错误
+
+- **Ver.1.4 Fixed 72**
+    - 修正 示例YAML 对于 ARMV7A设备 的部分判定
+    - 修正 LG Nexus 5 YAML 对于 ARMV7A设备 的部分判定
+
+- **Ver.1.4 Fixed 71**
+    - 增加 支持列表 LG Nexus 5 设备
+    - 修正 LG Nexus 5 YAML 标题错误
+
+- **Ver.1.4 Fixed 70**
+    - 增加 支持列表 有关 ARMV7A设备 的 KernelSU分支 支持情况
+    - 增加 示例YAML 有关 ARMV7A 利用 Anykernel3 打包的检测
+    - 增加 LG Nexus 5 设备
+    - 修正 extra_patches.sh ARMV7A设备 修补错误
+    - 修正 backport_patches.sh ARMV7A设备 修补错误
+    - 修正 示例ENV文件 默认 GCC_32 获取地址
+
+- **Ver.1.4 Fixed 69**
+    - 修正 说明文件 有关 no-kprobe 部分说明
+
+- **Ver.1.4 Fixed 68**
+    - 增加 backport_patches.sh 对 ARMV7A设备 的支持
+    - 增加 vfs_hook_patches.sh 对 ARMV7A设备 的支持
+    - 增加 extra_patches.sh 对 ARMV7A设备 的支持
+    - 增加 示例YAML 对 ARMV7A设备 的支持
+    - 修正 说明文件 有关 Patch脚本 的部分说明
+
+- **Ver.1.4 Fixed 67**
+    - 增加 说明文件 Patches/补丁介绍.patch 部分
+    - 增加 说明文件 有关Patch Kernel部分说明
+    - 增加 normal_patches.sh 作者
+    - 修正 说明文件 部分说明内容纰漏
+    - 修正 支持列表 有关VFS Hook说明
+
+- **Ver.1.4 Fixed 66**
+    - 增加 小米Mix2s wireguard fixed 补丁
+    - 启用 小米Mix2s wireguard相关config项
+
+- **Ver.1.4 Fixed 65**
+    - 增加 OPPO K9 Pro KPM相关config项
+    - 撤回 小米Mix2s wireguard相关config项
+
+- **Ver.1.4 Fixed 64**
+    - 增加 小米Mix2s Defconfig项
+
+- **Ver.1.4 Fixed 63**
+    - 增加 支持列表 新机型 OPPO K9 Pro
+    - 修正 OPPO K9 Pro YAML文件 和 ENV文件 部分文本
+
+- **Ver.1.4 Fixed 62**
+    - 修正 示例YAML 有关获取SUSFS的判定错误问题
+
+- **Ver.1.4 Fixed 61**
+    - 增加 小米Mix2s Zram Writeback defconfig项
+
+- **Ver.1.4 Fixed 60**
+    - 增加 小米Mix2s Simple LMK 补丁
+
+- **Ver.1.4 Fixed 59**
+    - 启用 小米Mix2s LZ4KD 补丁
+
+- **Ver.1.4 Fixed 58**
+    - 修复 小米Mix2s 编译问题
+
+- **Ver.1.4 Fixed 57**
+    - 撤回 小米Mix2s LZ4KD 补丁
+
+- **Ver.1.4 Fixed 56**
+    - 撤回 小米Mix2s YAML 合并config功能
+    - 修改 小米Mix2s Defconfig文件指向
+
+- **Ver.1.4 Fixed 55**
+    - 修改 小米Mix2s Defconfig文件指向
+    - 移植 小米Mix2s YAML 合并config功能
+    - 增加 小米Mix2s 有关LZ4KD额外选项
+
+- **Ver.1.4 Fixed 54**
+    - 增加 小米Mix2s LZ4KD 补丁
+
+- **Ver.1.4 Fixed 53**
+    - 修改 支持列表 小米Mix2s 系统版本号
+    - 修改 发布列表 小米Mix2s 系统版本号
+
+- **Ver.1.4 Fixed 52**
+    - 修改 支持列表 小米Mix2s Rekernel状态
+    - 修改 发布列表 小米Mix2s Rekernel状态
+
+- **Ver.1.4 Fixed 51**
+    - 增加 说明文件 对于Rekernel的补充说明
+
+- **Ver.1.4 Fixed 50**
+    - 增加 Rekernel 4.9内核 经过binder修补后使用补丁
+    - 修改 小米Mix2s Rekernel 补丁至binder修补版本
+
+- **Ver.1.4 Fixed 49**
+    - 增加 支持列表 小米Mix2s 有关Cgroup相关内容
+    - 增加 发布列表 小米Mix2s 有关Cgroup相关内容
+    - 增加 小米Mix2s Binder_Freezer 补丁
+
+- **Ver.1.4 Fixed 48**
+    - 增加 小米Mix2s Cgroup V2 补丁
+
+- **Ver.1.4 Fixed 47**
+    - 删除 build_checker.sh 脚本
+    - 增加 Rekernel 相关Patch
+    - 增加 示例YAML Rekernel修补步骤
+    - 增加 说明文件 Rekernel相关内容
+    - 增加 支持列表 Rekernel相关内容
+    - 增加 发布列表 Rekernel相关内容
+    - 修改 发布列表 将LXC状态修改为Re:Kernel状态
+    - 移植 小米Mix2s Rekernel修补步骤
+
 - **Ver.1.4 Fixed 46**
     - 增加 支持列表 地区显示
-    - 修改 中兴 AZ201T 设备名称
+    - 修改 中兴 A201ZT 设备名称
 
 - **Ver.1.4 Fixed 45**
     - 修改 支持列表 部分说明内容并将部分机型从Beta转为Stable维护状态

@@ -1,4 +1,4 @@
-name: Build Kernel (Ubuntu 20.04) Template (Cannot be used for compilation directly)
+name: Build Kernel Xiaomi 8 (Lawrun MIUI12 A10) with KSU
 on:
   workflow_call:
   workflow_dispatch:
@@ -9,7 +9,7 @@ env:
   PATCHES_SOURCE: "author/source" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
   PATCHES_BRANCH: "branch" # [your_branch] -> main
   HOOK_METHOD: "normal" # manual hook method,can choice vfs and normal.
-  PROFILE_NAME: "codename_rom_template.env" # your profile name.
+  PROFILE_NAME: "dipper_miui12_a10_lawrun.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
   KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
@@ -17,22 +17,43 @@ env:
   GENERATE_CHIP: "qcom" # only supported for qcom and mediatek.
   BUILD_DEBUGGER: "false" # Output build errors.
   BUILD_OTHER_CONFIG: "false" # Merge config files.
+  FREE_MORE_SPACE: "false" # if u want get more space, enabled it.
   REKERNEL_ENABLE: "false" # if u need Re:Kernel.
 
 
 jobs:
   build:
     name: Build Kernel by ${{ github.actor }}
-    runs-on: ubuntu-latest
-    container: ubuntu:focal
+    runs-on: ubuntu-22.04
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
     steps:
+      - name: Free Disk Space (Ubuntu)
+        if: env.FREE_MORE_SPACE == 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: true
+
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Remove useless tools
+        run: |
+          sudo rm -rf /opt/hostedtoolcache
+          df -h
+
       - uses: actions/checkout@v4
       - name: Prepare Configuration
-        shell: bash
         run: |
           CONFIG_ENV=$(grep -w "CONFIG_ENV" Profiles/${{ env.PROFILE_NAME }} | head -n 1 | cut -d "=" -f 2)
           CONFIG_LIST=(
@@ -79,43 +100,46 @@ jobs:
           # Move patch folder to tmp
           mv $GITHUB_WORKSPACE/Patches /tmp/
 
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          temp-reserve-mb: 64
+          swap-size-mb: 8192
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+
       - name: Install necessary packages
-        shell: bash
         run: |
-          apt-get update
-
-          # Set locale
-          ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-          DEBIAN_FRONTEND=noninteractive apt-get install tzdata lsb-release -y
-          dpkg-reconfigure --frontend noninteractive tzdata
-
           lsb_release -a
           UBUNTU_VERSION=$(lsb_release -sr)
+          sudo apt-get update
 
           if [ $UBUNTU_VERSION == "22.04" ] || [ $UBUNTU_VERSION == "20.04" ]; then
-            apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler wget curl -y
-            apt-get install p7zip p7zip-full -y
+            sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler
+            sudo apt-get install p7zip p7zip-full -y
             if [ "${{ env.PYTHON_VERSION }}" == "3" ]; then
-                apt install python2 python3 -y
+                sudo apt install python2 python3 -y
             elif [ "${{ env.PYTHON_VERSION }}" == "2" ]; then
-                apt install python2 -y
-                rm /usr/bin/python
-                ln -s /usr/bin/python2.7 /usr/bin/python
+                sudo apt install python2 -y
+                sudo rm /usr/bin/python
+                sudo ln -s /usr/bin/python2.7 /usr/bin/python
             else
                 echo "You need choose a python version."
                 false
             fi
           else
-            apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler python3 -y
-            apt-get install zstd libc6 binutils libc6-dev-i386 gcc g++ p7zip p7zip-full wget curl -y
+            sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler python3
+            sudo apt-get install zstd libc6 binutils libc6-dev-i386 gcc g++ p7zip p7zip-full -y
           fi
 
       - name: Install GNU GCC
-        shell: bash
         if: env.GCC_GNU == 'true'
         run: |
           if [ -z ${{ env.GCC_64_SOURCE }} ] && [ -z ${{ env.GCC_32_SOURCE }} ]; then
-            apt-get install binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi -y
+            sudo apt-get install binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi -y
             echo "GCC_64=CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
             echo "GCC_32=CROSS_COMPILE_ARM32=arm-linux-gnueabi-" >> $GITHUB_ENV
           else
@@ -123,14 +147,13 @@ jobs:
           fi
 
       - name: Set Compile Environment
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE
 
           # Set GCC Aarch64
           if [[ "${{ env.CLANG_SOURCE }}" == *proton* ]]; then
             echo "Detected Proton Clang. Not use GCC Source."
-            GCC_64_BIN=aarch64-linux-gnu-
+            GCC_64_BIN=aarch64-none-linux-gnu-
             echo "GCC_64=CROSS_COMPILE=$GCC_64_BIN" >> $GITHUB_ENV
           elif [ -z "${{ env.GCC_64_SOURCE }}" ]; then
             echo "Not set GCC 64!"
@@ -153,7 +176,7 @@ jobs:
               mkdir gcc-64
               unzip gcc-64.zip -d gcc-64/
             fi
-            GCC_64_BIN=aarch64-linux-android-
+            GCC_64_BIN=aarch64-none-linux-gnu-
             echo "GCC_64=CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-64/bin/$GCC_64_BIN" >> $GITHUB_ENV
           fi
 
@@ -161,8 +184,8 @@ jobs:
           # Set GCC ARM32
           if [[ "${{ env.CLANG_SOURCE }}" == *proton* ]]; then
             echo "Detected Proton Clang. Not use GCC Source."
-            GCC_32_BIN=arm-linux-gnueabi-
-            echo "GCC_32=CROSS_COMPILE_ARM32=$GCC_32_BIN" >> $GITHUB_ENV
+            GCC_32_BIN=arm-none-linux-gnueabihf-
+            echo "GCC_32=CROSS_COMPILE=$GCC_32_BIN" >> $GITHUB_ENV
           elif [ -z "${{ env.GCC_32_SOURCE }}" ]; then
             echo "Not set GCC 32!"
           else
@@ -184,7 +207,7 @@ jobs:
               mkdir gcc-32
               unzip gcc-32.zip -d gcc-32/
             fi
-            GCC_32_BIN=arm-linux-androideabi-
+            GCC_32_BIN=arm-none-linux-gnueabihf-
             if [ -z "${{ env.GCC_64_SOURCE }}" ]; then
                 echo "GCC_32=CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-32/bin/$GCC_32_BIN" >> $GITHUB_ENV
             else
@@ -218,7 +241,6 @@ jobs:
           fi
 
       - name: Get Kernel Source
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE
           git clone --recursive ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_BRANCH }} device_kernel --depth=1
@@ -239,7 +261,6 @@ jobs:
           echo "KERNEL_VERSION=$(head -n 3 device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')" >> $GITHUB_ENV
 
       - name: Set KSU and SUSFS for DEFCONFIG
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           if [[ -d "arch/arm64/configs" ]]; then
@@ -281,7 +302,6 @@ jobs:
           fi
 
       - name: Set Pack Method and KernelSU and SUSFS
-        shell: bash
         run: |
           # Variable
           SUSFS_SOURCE=https://gitlab.com/simonpunk/susfs4ksu.git
@@ -376,7 +396,6 @@ jobs:
           fi
 
       - name: Patch Kernel for no-kprobe
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE
           KERNEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $1}')
@@ -435,15 +454,22 @@ jobs:
           fi
 
       - name: Extra Kernel Options
-        shell: bash
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
-          # Nothing
+
+          # Remove 88XXAU Wi-Fi Driver
+          echo "# CONFIG_88XXAU is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          rm -rf drivers/88XXAU
+          sed -i '/source "drivers\/88XXAU\/Kconfig"/d' drivers/Kconfig
+          sed -i '7d' drivers/Makefile
+
+          # Fixed qcedev.c in GCC 9.2
+          wget https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Patches/refs/heads/mi_kernel/mi8_miui/qcedev_fixed.patch
+          patch -p1 < qcedev_fixed.patch
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/scripts/dtc
           wget https://android.googlesource.com/platform/system/libufdt/+archive/refs/heads/main/utils/src.tar.gz
@@ -460,7 +486,6 @@ jobs:
 
       - name: Setup LXC (Experiment)
         if: env.LXC_ENABLE == 'true'
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           if [[ -d "arch/arm64/configs" ]]; then
@@ -498,7 +523,6 @@ jobs:
 
       - name: Patch Kernel of SUSFS
         if: env.SUSFS_ENABLE == 'true'
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
           cp susfs4ksu/kernel_patches/50_add_susfs_in_kernel-$KERNEL_VERSION.patch ./
@@ -534,7 +558,6 @@ jobs:
 
       - name: Patch Debugger
         if: env.BUILD_DEBUGGER == 'true'
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
           mapfile -t REJ_FILES < <(find . -type f -name "*.rej")
@@ -551,7 +574,6 @@ jobs:
 
       - name: Fixed Kernel Patch
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_FIXED == 'true'
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
           cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
@@ -578,7 +600,6 @@ jobs:
           max-size: 2G
 
       - name: Build Kernel
-        shell: bash
         run: |
           MERGE_CONFIG_FILES=("vendor/debugfs.config" "vendor/lahaina_QGKI.config")
           export PATH=$GITHUB_WORKSPACE/clang-custom/bin:$PATH
@@ -647,7 +668,6 @@ jobs:
 
       - name: KPM Patcher (Experiment)
         if: env.KPM_ENABLE == 'true'
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
@@ -714,7 +734,6 @@ jobs:
 
       - name: Make Anykernel3 Flasher
         if: env.PACK_METHOD == 'Anykernel3'
-        shell: bash
         run: |
           TIME=$(date +"%Y%m%d%H%M%S")
 
@@ -763,11 +782,11 @@ jobs:
             echo "Found DTB!"
             cp -fp $IMAGE_DIR/dtb tmp
           elif [ "${{ env.GENERATE_DTB }}" == "true" ]; then
-            if [ -d "$IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}" ]; then
-                cat $IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
+            if [ -d "$IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}" ]; then
+                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
                 cp -fp $IMAGE_DIR/DTB tmp
                 echo "Generated ${{ env.GENERATE_CHIP }} DTB."
-            elif [ -d "$IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}" ]; then
+            elif [ -d "$IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}" ]; then
                 cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
                 cp -fp $IMAGE_DIR/DTB tmp
                 echo "Generated ${{ env.GENERATE_CHIP }} DTB."
@@ -790,7 +809,6 @@ jobs:
 
       - name: Make Latest Boot Image
         if: env.PACK_METHOD == 'MKBOOTIMG'
-        shell: bash
         run: |
           cd $GITHUB_WORKSPACE/
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
@@ -817,13 +835,13 @@ jobs:
             echo "Found DTB!"
             cp -fp $IMAGE_DIR/dtb out/dtb
           elif [ "${{ env.GENERATE_DTB }}" == "true" ]; then
-            if [ -d "$IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}" ]; then
-                cat $IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
-                cp -fp $IMAGE_DIR/DTB tmp
-                echo "Generated ${{ env.GENERATE_CHIP }} DTB."
-            elif [ -d "$IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}" ]; then
+            if [ -d "$IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}" ]; then
                 cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
-                cp -fp $IMAGE_DIR/DTB tmp
+                cp -fp $IMAGE_DIR/DTB out/dtb
+                echo "Generated ${{ env.GENERATE_CHIP }} DTB."
+            elif [ -d "$IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}" ]; then
+                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
+                cp -fp $IMAGE_DIR/DTB out/dtb
                 echo "Generated ${{ env.GENERATE_CHIP }} DTB."
             else
                 echo "Missing .dtb file in dts or dts/vendor ! Generate Failed !"
@@ -839,7 +857,7 @@ jobs:
 
           rm -f $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
 
-      - name: Upload Build Artifacts For Boot Image
+      - name: Upload Build Artifacts For Anykernel3
         if: env.PACK_METHOD == 'Anykernel3'
         uses: actions/upload-artifact@v4
         with:
@@ -847,7 +865,7 @@ jobs:
           path: |
             device_kernel/${{ env.PACK_NAME }}
 
-      - name: Upload Build Artifacts For Anykernel3
+      - name: Upload Build Artifacts For Boot Image
         if: env.PACK_METHOD == 'MKBOOTIMG'
         uses: actions/upload-artifact@v4
         with:
