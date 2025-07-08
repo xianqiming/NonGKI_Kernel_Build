@@ -2,7 +2,7 @@
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/JackA1ltman/NonGKI_Kernel_Build/main)![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/JackA1ltman/NonGKI_Kernel_Build/latest/total)  
 [支持列表](Supported_Devices.md) | 中文文档 | [English](README_EN.md) | [更新日志](Updated.md)  
 
-**Ver**.1.4
+**Ver**.1.5
 
 **Non-GKI**：我们常说的Non-GKI包括了GKI1.0（内核版本4.19-5.4）（5.4为QGKI）和真正Non-GKI（内核版本≤4.14）  
 
@@ -51,7 +51,7 @@
 
 **LXC_ENABLE** - (实验性⚠)启用自动化内核LXC/Docker支持，true或false  
 
-**HAVE_NO_DTBO** - (实验性⚠)若你的内核没有提供dtbo.img，且你的设备属于A/B分区且存在dtbo分区，则可启用本选项(true)，默认为false  
+**HAVE_NO_DTBO** - (实验性⚠)若你的内核没有提供dtbo.img，且你的设备属于A/B分区且存在dtbo分区，则可启用本选项(true)，默认为false，参考：https://review.lineageos.org/c/LineageOS/android_kernel_xiaomi_gauguin/+/372909/2  
 **HAVE_NO_DTBO_TOOL** - (实验性⚠)在上一项启用后，你可以选择启用这项来获得更加安全的生成dtbo.img方案  
 
 **ROM_TEXT** - 用于编译成功后用于上传文件标题，声明内核可用的ROM  
@@ -75,14 +75,17 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - **PATCHES_BRANCH** - patch项目所需的分支，一般为main
   - **HOOK_METHOD** - 我们提供了两种方式用于KernelSU手动修补：
     - **normal**代表最常见的修补方式，一般不会出问题，仅适合内核版本≥3.18（ARM64）设备
-    - [vfs](https://github.com/backslashxx/KernelSU/issues/5)是最新的最小化修补方式，似乎会提高隐藏，但是在低版本clang下可能会有ISO编译规范问题，目前已经支持包括3.4版本内核为最低版本的所有内核
+    - [syscall](https://github.com/backslashxx/KernelSU/issues/5)是最新的最小化修补方式，似乎会提高隐藏，但是在低版本clang下可能会有ISO编译规范问题，目前已经支持包括3.4版本内核为最低版本的所有内核，对于**内核版本≤4.9**的内核，会自动执行针对kernel_write和kernel_read的修补补丁，但可能存在需要二次修补的情况，更高版本内核则不需要考虑这个事情
+  - **HOOK_OLDER** - 若你需要syscall补丁，但你的设备或KernelSU不支持最新版本的syscall则可以启用
   - **PROFILE_NAME** - 填写成你修改好的env环境变量文件的名称，例如codename_rom_template.env
   - **KERNELSU_SUS_PATCH** - 如果你的KernelSU不属于KernelSU-Next，并且也没有针对SuSFS的修补分支，可以启用该项目（true），但我们不建议这么做，因为分支KernelSU的魔改情况严重，手动修补已经不能顺应现在的时代了
   - **KPM_ENABLE** - (实验性⚠)启用对SukiSU-Ultra的KPM编译支持，该项为实验项，请小心启用
+  - **KPM_FIX** - (实验性⚠)当前KPM功能可能存在[“栈帧”溢出漏洞](https://github.com/SukiSU-Ultra/SukiSU-Ultra/issues/141)导致编译失败，若你存在该问题请启用本项
   - **KPM_PATCH_SOURCE** - (实验性⚠)通常你不需要自行提供patch二进制下载链接，除非你有额外需求
   - **GENERATE_DTB** - 如果你的内核编译后，需要DTB文件（不是.dtb、.dts、.dtsi），则可以开启本项自动执行生成DTB步骤
   - **GENERATE_CHIP** - 设定对应设备CPU，并提供给DTB和KPM功能用于识别，通常支持qcom、mediatek，但我们不确定其他CPU是否支持
-  - **BUILD_DEBUGGER** - 若需要提供出错时的报告可使用该选项，目前提供patch错误rej文件的输出，其他功能可期待未来更新
+  - **BUILD_DEBUGGER** - 若需要提供出错时的报告可使用该选项，目前提供patch错误rej文件的输出，以及基础的编译错误分析，其他功能可期待未来更新
+  - **SKIP_PATCH** - 当启用DEBUGGER后，若你需要展示错误文件信息但又不希望影响编译流程，则可开启本项
   - **BUILD_OTHER_CONFIG** - 若你需要合并内核源码中自带的其他.config文件，可启用本项，但是需要自行修改”Build Kernel“中数组MERGE_CONFIG_FILES中的内容
   - **FREE_MORE_SPACE** - 若你认为当前的空间不足，则可以启用该项来获得更多空间释放，默认情况下可获得约88GB空间，启用本项可获得102GB空间，但执行时间会增加1-2分钟（仅限默认YAML，Arch Linux或Ubuntu 20.04仅可获得14-20GB空间）
   - **REKERNEL_ENABLE** - 如果你认为你的设备具备运行[Re:Kernel](https://github.com/Sakion-Team/Re-Kernel)的条件，并且你需要Re:Kernel，则可以启用本项，true或者false
@@ -134,7 +137,7 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 由变量控制是否执行该步骤
   
 - **KPM Patcher (Experiment)**
-  - 为SukiSU-Ultra提供KPM内核Patch功能，该功能目前暂不支持内核版本<4.9的设备，4.9内核可执行backport_set_memory.patch移植set_memory后启用KPM
+  - 为SukiSU-Ultra提供KPM内核Patch功能
   - 该功能在**Arch Linux**下可以正常执行，在**Ubuntu22.04下异常**，建议使用**最新版Ubuntu或者Arch Linux YAML**
 
 ## Patches/补丁介绍.patch
@@ -142,42 +145,94 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
 
 - **normal_patches.sh**
   - 变量：HOOK_METHOD -> normal
-  - 用于执行Non-GKI内核的手动修补，也是KernelSU官网Non-GKI内核手动修补部分的内核，仅适合内核版本≥3.18（ARM64）设备
-  - 参考：https://kernelsu.org/zh_CN/guide/how-to-integrate-for-non-gki.html
+  - 用于执行Non-GKI内核的手动修补，也是KernelSU官网Non-GKI内核手动修补部分的内核，仅适合内核版本≥3.18（ARM64）设备，会自动执行对缺少SELinux相关权限的旧版本内核（内核版本≤4.9）
+  - 参考：
+    - https://kernelsu.org/zh_CN/guide/how-to-integrate-for-non-gki.html
+    - https://github.com/sticpaper/android_kernel_xiaomi_msm8998-ksu/commit/646d0c8
 
-- **vfs_hook_patches.sh**
-  - 变量：HOOK_METHOD -> vfs
-  - 用于执行backslashxx大佬最新实现的最小化手动修补(Syscall)功能，对旧版本编译器兼容性不是很好，但适配支持了内核版本≤3.18（ARMV7A）设备，因此全内核可用
+- **syscall_hook_patches.sh**
+  - 变量：HOOK_METHOD -> syscall
+  - 用于执行backslashxx大佬最新实现的最小化手动修补(Syscall)功能，对旧版本编译器兼容性不是很好，但适配支持了内核版本≤3.18（ARMV7A）设备，会自动执行对缺少SELinux相关权限的旧版本内核（内核版本≤4.9），因此全内核可用
+    - 若存在没有及时更新syscall的情况，可提出issue或pr
   - 参考：https://github.com/backslashxx/KernelSU/issues/5
-
-- **extra_patches.sh** 
-  - 自动判断内核版本执行
-  - 用于执行对缺少SELinux相关权限的旧版本内核（内核版本≤4.9）
-  - 参考：https://github.com/sticpaper/android_kernel_xiaomi_msm8998-ksu/commit/646d0c8
+  
+- **syscall_hook_patches_older.sh**
+  - 变量：HOOK_METHOD -> syscall 和 HOOK_OLDER -> true
+  - 用于执行backslashxx大佬最新实现的最小化手动修补(Syscall)功能，对旧版本编译器兼容性不是很好，但适配支持了内核版本≤3.18（ARMV7A）设备，会自动执行对缺少SELinux相关权限的旧版本内核（内核版本≤4.9），因此全内核可用
+    - 版本：1.4
+  - 参考：https://github.com/backslashxx/KernelSU/issues/5
+  
+- **syscall_hook_patches_early.sh**
+  - 暂无执行方式
+  - syscall的最初版本，适用于需要syscall但执行最新版失败的情况
+  - 参考：https://github.com/backslashxx/KernelSU/issues/5
   
 - **backport_patches.sh** 
   - 自动判断内核版本执行
   - 用于执行对Non-GKI内核的反向移植，除了KernelSU-Next和SukiSU-Ultra可以实现自动反向移植外，其他的分支均无法实现
   - 参考：https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
   
-- **susfs_upgrade_to_157.patch**
+- **backport_patches_early.sh** 
+  - 自动执行
+  - 旧版向后移植方案，用于normal patch和syscall旧版
+  - 参考：https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
+
+- **found_gcc.sh**
+  - 自动判断GCC执行
+  - 用于对GCC前缀进行自动化解析
+  - 参考：暂无
+  
+- **check_error.sh**
+  - 变量：BUILD_DEBUGGER -> true
+  - 用于分析基础的编译错误，并提供一定建议
+  - 参考：暂无
+  
+- **Patch/susfs_upgrade_to_157.patch**
   - 变量：(env文件)SUSFS_UPDATE -> true
   - 对停止更新的Non-GKI设备的SuSFS进行更新，从v1.5.5更新至v1.5.7
-  - 参考：https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/compare/c7d82bf8607704c22a8a869c4611c7cf3d22ce31..1ea2cbd7659167e62d2265632710f084c45f3ca1
+  - 参考：https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/commit/b3c85f330b135baf5c101b07f027e69e75f42060
   
-- **temp_dtbo.patch**
-  - 变量：(env文件)HAVE_NO_DTBO -> true 并且 (env文件)HAVE_NO_DTBO_TOOL -> false
-  - 用于生成dtbo.img步骤所需的补丁文件，会在需要时自动使用
-  - 参考：https://review.lineageos.org/c/LineageOS/android_kernel_xiaomi_gauguin/+/372909/2
+- **Patch/susfs_upgrade_to_158_X_X.patch**
+  - 变量：(env文件)SUSFS_UPDATE -> true
+  - 对停止更新的Non-GKI设备的SuSFS进行更新，从v1.5.7更新至v1.5.8
+  - 参考：
+    - https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/commit/41678dd9290f04d98b9f0523574e11f98c7ce7c1
+    - https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/commit/60008290523a235282176b328f390777282024c9
+    - https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/commit/999ae11965ac2b4f3d3c7fbebc8e09cc8bbd0fce
+    
+- **Patch/susfs_upgrade_to_159.patch**
+  - 变量：(env文件)SUSFS_UPDATE -> true
+  - 对停止更新的Non-GKI设备的SuSFS进行更新，从v1.5.8更新至v1.5.9
+  - 参考：
+    - https://gitlab.com/simonpunk/susfs4ksu/-/commit/fc90c9428b56133a99c39f0915472c0fc25979fe
+    - https://gitlab.com/simonpunk/susfs4ksu/-/commit/b9dca0f7498413f5f6e19e74b530a64d628ae315
+    - https://gitlab.com/simonpunk/susfs4ksu/-/commit/10f3cbdc26cad49094572e23bb62857e056a805c
+    - https://gitlab.com/simonpunk/susfs4ksu/-/commit/072a1b42bf323439c71c045a389f362f39caffe0
+    - https://gitlab.com/simonpunk/susfs4ksu/-/commit/a26ba8380e1d10b2169b8148967c4f5108c2a3f7
 
-- **backport_set_memory.patch**
-  - 需要**手动**填写执行
+- **Patch/set_memory_to_49_and_low.patch**
+  - 变量：KPM_ENABLE -> true
   - 用于对内核版本≤4.9的设备移植set_memory功能的补丁文件，因为缺少大量测试，因此只作为测试补丁，且该补丁仅用于需要使用SukiSU-Ultra的KPM功能的情况下
   - 参考：暂无
 
+- **Patch/backport_kernel_read_and_kernel_write_to_ksu.patch**
+  - 变量：HOOK_NEWER -> true
+  - 用于执行对Non-GKI内核（**内核版本≤4.9**）的反向移植，可能存在需要二次修补的情况
+  - 参考：https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
+  
+- **Patch/fix_kpm.patch**
+  - 变量：KPM_FIX -> true
+  - 用于应对**栈帧溢出漏洞**导致的编译失败问题
+  - 参考：https://github.com/SukiSU-Ultra/SukiSU-Ultra/issues/141
+  
 - **Rekernel/rekernel-X.X.patch**
   - 变量：REKERNEL_ENABLE -> true
   - 让内核支持Re:Kernel的补丁文件，YAML会根据你的内核版本自动判断使用的补丁，不过若你是4.9内核且当前补丁不可用，就需要将补丁修改成rekernel-4.9-for-fixed.patch后尝试，不支持内核版本≤4.4设备
   - 参考：https://github.com/Sakion-Team/Re-Kernel/blob/main/Integrate/README_CN.md
+  
+- **Bin/curlx.sh**
+  - 自动执行
+  - 用于更加便捷的执行包括断点续传在内的curl命令
+  - 参考：由[@yu13140](https://github.com/yu13140)提供更新
   
 最后提醒⚠️：非上述提示的步骤理论上不需要你做任何修改，我已经尽可能实现多情况判定

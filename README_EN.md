@@ -2,7 +2,7 @@
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/JackA1ltman/NonGKI_Kernel_Build/main)![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/JackA1ltman/NonGKI_Kernel_Build/latest/total)  
 [Supported Devices](Supported_Devices.md) | [中文文档](README.md) | English | [Updated Logs](Updated.md)  
 
-**Ver**.1.4
+**Ver**.1.5
 
 **Non-GKI**: What we commonly refer to as Non-GKI includes both GKI1.0 (kernel versions 4.19-5.4) (5.4 is QGKI) and true Non-GKI (kernel versions ≤ 4.14).  
 
@@ -51,7 +51,7 @@ Each profile consists of the following elements:
 
 **LXC_ENABLE** - (Experimental ⚠) Enable automated kernel support for LXC/Docker (true or false).  
 
-**HAVE_NO_DTBO** - (Experimental ⚠) If your kernel does not provide a dtbo.img but your device uses an A/B partitioning scheme with a dtbo partition, you can enable this option (true). The default is false.  
+**HAVE_NO_DTBO** - (Experimental ⚠) If your kernel does not provide a dtbo.img but your device uses an A/B partitioning scheme with a dtbo partition, you can enable this option (true). The default is false. Reference: https://review.lineageos.org/c/LineageOS/android_kernel_xiaomi_gauguin/+/372909/2.  
 **HAVE_NO_DTBO_TOOL** - (Experimental ⚠) After enabling the previous option, you can choose to enable this one to use a safer method for generating dtbo.img.  
 
 **ROM_TEXT** - Used in the final filename of the compiled kernel to indicate which ROM it is compatible with.  
@@ -75,14 +75,17 @@ GitHub has dropped support for Ubuntu 20.04. If you still need it or are using C
     - **PATCHES_BRANCH** - The required branch for the patch repository (default: main).
     - **HOOK_METHOD** - Two KernelSU patching methods are available:
         - **normal**: Standard patching, works in most cases. This is only suitable for ARM64 devices with kernel version 3.18 or higher.
-        - [vfs](https://github.com/backslashxx/KernelSU/issues/5): Minimal patching method, which may improve hiding KernelSU but might cause ISO compliance issues with older Clang versions，And there are issues with support for kernels ≤4.9. It is recommended to enable this only for higher kernel versions. We now support all kernel versions, with 3.4 being the minimum supported version.
+        - [syscall](https://github.com/backslashxx/KernelSU/issues/5): Minimal patching method, which may improve hiding KernelSU but might cause ISO compliance issues with older Clang versions，And there are issues with support for kernels ≤4.9. It is recommended to enable this only for higher kernel versions. We now support all kernel versions, with 3.4 being the minimum supported version. For kernels with versions **4.9 or older**, it will automatically apply patches for kernel_write and kernel_read. However, it's possible that a second round of patching might be needed. For newer kernel versions, this isn't a concern.
+    - **HOOK_OLDER** - If you need the syscall patch, but your device or KernelSU doesn't support the latest version of syscall, you can enable this.
     - **PROFILE_NAME** - Enter the name of your modified ENV environment variable file, such as codename_rom_template.env.
     - **KERNELSU_SUS_PATCH** - If your KernelSU is not part of KernelSU-Next and does not have a patch branch for SuSFS, you can enable this option (true). However, we do not recommend doing so, as the KernelSU branches have been heavily modified, and manual patching is no longer suitable for the current era.
     - **KPM_ENABLE** - (Experimental ⚠) Enables compilation support for KPM in SukiSU-Ultra. This is an experimental feature, so please enable it with caution.
+    - **KPM_FIX** - (Experimental ⚠) The current KPM feature might have a ["stack frame" overflow vulnerability](https://www.google.com/search?q=https://github.com/SukiSU-Ultra/SukiSU-Ultra/issues/141) that leads to compilation failures. If you're experiencing this issue, enable this option.
     - **KPM_PATCH_SOURCE** - (Experimental ⚠) Normally, you don't need to provide the patch binary download link yourself, unless you have additional requirements.
     - **GENERATE_DTB** - If your kernel requires a DTB file after compilation (not .dtb, .dts, or .dtsi), you can enable this option to automatically generate the DTB file. 
     - **GENERATE_CHIP** - Set the corresponding device CPU, and provide it for DTB and KPM functions for identification. It typically supports Qualcomm (qcom) and MediaTek (mediatek), but we're unsure if other CPUs are supported.
-    - **BUILD_DEBUGGER** - Enables error reporting if needed. Currently, it provides output for patch error .rej files, with more features expected in future updates.
+    - **BUILD_DEBUGGER** - Enables error reporting if needed. Currently, it provides output for patch error .rej files and basic compilation error analysis., with more features expected in future updates.
+    - **SKIP_PATCH** - When **BUILD_DEBUGGER** is enabled, if you want to display error file information but don't want it to affect the compilation process, you can enable this option.
     - **BUILD_OTHER_CONFIG** - If you need to merge additional .config files included in the kernel source, you can enable this option. However, you must manually modify the MERGE_CONFIG_FILES array in the "Build Kernel" section.
     - **FREE_MORE_SPACE** - If you believe the current available space is insufficient, you can enable this option to free up additional space. By default, approximately 88GB of space is available. Enabling this option can increase the available space to 102GB, but it will add 1–2 minutes to the execution time. (Only applies to the default YAML; Arch Linux or Ubuntu 20.04 can only provide 14–20GB of space.)
     - **REKERNEL_ENABLE** - If you believe your device meets the requirements to run [Re:Kernel](https://github.com/Sakion-Team/Re-Kernel) and you need Re:Kernel, you can enable this option, true or false.
@@ -135,7 +138,7 @@ GitHub has dropped support for Ubuntu 20.04. If you still need it or are using C
     - Whether this step is executed is controlled by a variable.
     
 - **KPM Patcher (Experiment)**
-    - SukiSU-Ultra now offers KPM kernel patching functionality. This feature currently doesn't support devices with kernel versions below 4.9. For 4.9 kernels, you can enable KPM after porting set_memory using the backport_set_memory.patch.
+    - SukiSU-Ultra now offers KPM kernel patching functionality. 
     - This feature works correctly under **Arch Linux** but behaves **abnormally on Ubuntu 22.04**. It is recommended to use the latest version of **Ubuntu or the Arch Linux YAML**.
     
 ## Patches/Patch_Introduction.patch
@@ -143,42 +146,89 @@ Below is an introduction to the patches included in the Patches directory:
 
 - **normal_patches.sh**
     - Variable: HOOK_METHOD -> normal
-    - Used for manually patching Non-GKI kernels. This is also the kernel used in the manual patching section for Non-GKI kernels on the KernelSU official website. This is only suitable for ARM64 devices with kernel version 3.18 or higher.
-    - Reference: https://kernelsu.org/zh_CN/guide/how-to-integrate-for-non-gki.html
+    - Used for manually patching Non-GKI kernels. This is also the kernel used in the manual patching section for Non-GKI kernels on the KernelSU official website. This is only suitable for ARM64 devices with kernel version 3.18 or higher. This will automatically execute for older kernel versions (kernel version ≤ 4.9) that lack SELinux-related permissions.
+    - Reference: 
+        - https://kernelsu.org/zh_CN/guide/how-to-integrate-for-non-gki.html
+        - https://github.com/sticpaper/android_kernel_xiaomi_msm8998-ksu/commit/646d0c8
     
-- **vfs_hook_patches.sh**
-    - Variable: HOOK_METHOD -> vfs
-    - Used for the latest minimized manual patching (Syscall) feature implemented by backslashxx. Compatibility with older compilers isn't great. But it's been adapted to support devices with kernel versions ≤ 3.18 (ARMV7A), so it's compatible with all kernels.
+- **syscall_hook_patches.sh**
+    - Variable: HOOK_METHOD -> syscall
+    - Used for the latest minimized manual patching (Syscall) feature implemented by backslashxx. Compatibility with older compilers isn't great. But it's been adapted to support devices with kernel versions ≤ 3.18 (ARMV7A), so it's compatible with all kernels. This will automatically execute for older kernel versions (kernel version ≤ 4.9) that lack SELinux-related permissions.
+        - If there are instances where syscall wasn't updated in time, you can submit an issue or a pull request.
     - Reference: https://github.com/backslashxx/KernelSU/issues/5
     
-- **extra_patches.sh**
-    - Executes automatically based on kernel version.
-    - Used for older kernel versions (kernel version ≤ 4.9) that lack SELinux-related permissions.
-    - Reference: https://github.com/sticpaper/android_kernel_xiaomi_msm8998-ksu/commit/646d0c8
+- **syscall_hook_patches_early.sh**
+    - Variable: None
+    - This is the original version of the syscall patch, intended for situations where you need syscall functionality but the latest version fails to execute.
+    - Reference: https://github.com/backslashxx/KernelSU/issues/5
 
+- **syscall_hook_patches_older.sh**
+    - Variable: HOOK_METHOD -> syscall AND HOOK_OLDER -> true
+    - Used for the latest minimized manual patching (Syscall) feature implemented by backslashxx. Compatibility with older compilers isn't great. But it's been adapted to support devices with kernel versions ≤ 3.18 (ARMV7A), so it's compatible with all kernels. This will automatically execute for older kernel versions (kernel version ≤ 4.9) that lack SELinux-related permissions.
+        - Version 1.4
+    - Reference: https://github.com/backslashxx/KernelSU/issues/5
+    
 - **backport_patches.sh**
     - Executes automatically based on kernel version.
     - Used for backporting features to Non-GKI kernels. While KernelSU-Next and SukiSU-Ultra can automatically handle backporting, other branches cannot.
     - Reference: https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
+    
+- **backport_patches_early.sh**
+    - Automatic execution
+    - This refers to the older backport solution, which is used for both the normal patch and the older version of the syscall patch.
+    - Reference: https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
 
-- **susfs_upgrade_to_157.patch**
+- **found_gcc.sh**
+    - Executes automatically based on GCC detection.
+    - Used for automated parsing of GCC prefixes.
+    - Reference: None available.
+
+- **check_error.sh**
+    - Variable: BUILD_DEBUGGER -> true
+    - Used for analyzing basic compilation errors and providing some suggestions.
+    - Reference: None available.
+    
+- **Patch/susfs_upgrade_to_157.patch**
     - Variable: (env file) SUSFS_UPDATE -> true
     - Updates SuSFS from v1.5.5 to v1.5.7 for Non-GKI devices that have stopped receiving updates.
-    - Reference: https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/compare/c7d82bf8607704c22a8a869c4611c7cf3d22ce31..1ea2cbd7659167e62d2265632710f084c45f3ca1
+    - Reference: https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/commit/b3c85f330b135baf5c101b07f027e69e75f42060
 
-- **temp_dtbo.patch**
-    - Variables: (env file) HAVE_NO_DTBO -> true , (env file) HAVE_NO_DTBO_TOOL -> false
-    - A patch file required for the dtbo.img generation step; it's used automatically when needed.
-    - Reference: https://review.lineageos.org/c/LineageOS/android_kernel_xiaomi_gauguin/+/372909/2
-
-- backport_set_memory.patch
+- **Patch/susfs_upgrade_to_158_X_X.patch**
+    - Variable: (env file) SUSFS_UPDATE -> true
+    - Updates SuSFS from v1.5.7 to v1.5.8 for Non-GKI devices that have stopped receiving updates.
+    - References:
+        - https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/commit/41678dd9290f04d98b9f0523574e11f98c7ce7c1
+        - https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/commit/60008290523a235282176b328f390777282024c9
+        - https://github.com/rsuntk/android_kernel_asus_sdm660-4.19/commit/999ae11965ac2b4f3d3c7fbebc8e09cc8bbd0fce
+        
+- **Patch/susfs_upgrade_to_159.patch**
+    - Variable: (env file) SUSFS_UPDATE -> true
+    - Updates SuSFS from v1.5.8 to v1.5.9 for Non-GKI devices that have stopped receiving updates.
+    - References:
+        - https://gitlab.com/simonpunk/susfs4ksu/-/commit/fc90c9428b56133a99c39f0915472c0fc25979fe
+        - https://gitlab.com/simonpunk/susfs4ksu/-/commit/b9dca0f7498413f5f6e19e74b530a64d628ae315
+        - https://gitlab.com/simonpunk/susfs4ksu/-/commit/10f3cbdc26cad49094572e23bb62857e056a805c
+        - https://gitlab.com/simonpunk/susfs4ksu/-/commit/072a1b42bf323439c71c045a389f362f39caffe0
+        - https://gitlab.com/simonpunk/susfs4ksu/-/commit/a26ba8380e1d10b2169b8148967c4f5108c2a3f7
+    
+- **Patch/set_memory_to_49_and_low.patch**
     - Requires **manual** execution.
     - A patch file for backporting the set_memory function to devices with kernel versions ≤ 4.9. Due to a lack of extensive testing, it's considered a test patch only and should only be used when the KPM function of SukiSU-Ultra is required.
     - Reference: None available.
 
-- Rekernel/rekernel-X.X.patch
+- **Patch/fix_kpm.patch**
+    - Variable: KPM_FIX -> true
+    - Used to address compilation failures caused by the **stack frame overflow vulnerability**.
+    - Reference: https://github.com/SukiSU-Ultra/SukiSU-Ultra/issues/141
+    
+- **Rekernel/rekernel-X.X.patch**
     - Variable: REKERNEL_ENABLE -> true
     - A patch file to enable Re:Kernel support in the kernel. The YAML will automatically determine which patch to use based on your kernel version. However, if you have a 4.9 kernel and the current patch isn't working, you'll need to change the patch to rekernel-4.9-for-fixed.patch and try again. This does not support devices with kernel versions ≤ 4.4.
     - Reference: https://github.com/Sakion-Team/Re-Kernel/blob/main/Integrate/README_CN.md
+    
+- **Bin/curlx.sh**
+    - Automatic execution
+    - Used for more convenient execution of **curl** commands, including resuming interrupted downloads.
+    - Reference: Updated by [@yu13140](https://github.com/yu13140).
     
 Final Reminder⚠ : Unless otherwise mentioned, there is no need to modify any other sections of the .yml workflow. The setup is designed to automatically handle various conditions.

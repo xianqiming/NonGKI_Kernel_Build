@@ -1,4 +1,293 @@
 ## 项目更新日志
+- **Ver.1.5 Fixed 49**
+    - 增加 部分YAML文件 SuSFS 1.5.9 补丁步骤逻辑
+
+- **Ver.1.5 Fixed 48**
+    - 增加 Patch/susfs_upgrade_to_159.patch
+    - 增加 说明文件 susfs_upgrade_to_159 对应词条
+    - 增加 示例YAML文件 SuSFS 1.5.9 补丁步骤逻辑
+    - 修正 红米 K40 Gaming MIUI13 A12 编译错误
+
+- **Ver.1.5 Fixed 47**
+    - 命名交换 红米 K40 Gaming MIUI13 A12 和 红米 K40 Gaming HyperOS A13
+    - 移植 红米 Note 10 Pro MIUI A13 SuSFS 1.5.8 补丁步骤逻辑
+    - 移植 红米 K40 Gaming HyperOS A13 SuSFS 1.5.8 补丁步骤逻辑
+    - 修正 红米 Note 10 Pro MIUI A13 模块安装失败问题
+    - 修正 红米 Note 10 Pro MIUI A13 SuSFS开关
+    - 修正 红米 K40 Gaming HyperOS A13 编译错误
+    - 修正 红米 K40 Gaming MIUI13 A12 编译错误
+    - 修正 支持列表 部分设备状态
+
+- **Ver.1.5 Fixed 46**
+    - 移植 红米 K40 Gaming HyperOS A13 SuSFS 1.5.8 补丁步骤逻辑
+    - 修正 红米 K40 Gaming HyperOS A13 SuSFS开关
+    - 修正 支持列表 部分设备状态
+
+- **Ver.1.5 Fixed 45**
+    - 增加 Arch Linux YAML aarch64-linux-gnu-glibc 和 arm-none-eabi-newlib 包安装
+    - 增加 Ubuntu YAML libtinfo5 包安装
+
+- **Ver.1.5 Fixed 44**
+    - 修正 found_gcc.sh 检测逻辑
+    - 增加 红米 Note 10 Pro MIUI A13 设备
+
+- **Ver.1.5 Fixed 43**
+    - 重命名 syscall_hook_patches_older.sh syscall_hook_patches_early.sh
+    - 重命名 backport_patches_older.sh backport_patches_early.sh
+    - 增加 syscall_hook_patches_older.sh
+    - 修正 说明文件 有关syscall的说明
+    - 修正 所有YAML文件 syscall执行步骤
+
+- **Ver.1.5 Fixed 42**
+    - 重制 红米8 4.19 Older YAML 以及 ENV文件
+    - 撤回 小米11 Ultra YAML 以及 ENV文件 至 commit-223938c54b1121a1ee47c2817b49b1688227d949
+
+- **Ver.1.5 Fixed 41**
+    - 移植 红米8 4.19 SuSFS 1.5.8 补丁步骤逻辑
+    - 修正 红米8 4.19 额外的syscall补丁执行
+
+- **Ver.1.5 Fixed 40**
+    - 切换 小米11 Ultra HOOK_METHOD为none
+
+- **Ver.1.5 Fixed 39**
+    - 增加 示例YAML文件 有关ZYGOTE_ISO_SERVICE编译错误修复方式
+    - 修正 小米11 Ultra 有关ZYGOTE_ISO_SERVICE编译错误修复方式
+    - 修正 小米Mix2s 有关ZYGOTE_ISO_SERVICE编译错误修复方式
+    - 修正 小米平板4(Plus) 有关ZYGOTE_ISO_SERVICE编译错误修复方式
+    - 修正 红米8 4.19 有关ZYGOTE_ISO_SERVICE编译错误修复方式
+
+- **Ver.1.5 Fixed 38**
+    - 切换 小米11 Ultra HOOK_METHOD为syscall
+    - 修正 支持列表 小米11 Ultra 部分参数
+
+- **Ver.1.5 Fixed 37**
+    - 切换 小米11 Ultra KernelSU分支版本
+
+- **Ver.1.5 Fixed 36**
+    - 增加 Patch/susfs_upgrade_to_158_5.4_kprobe.patch
+    - 修正 示例YAML SuSFS 1.5.8 补丁步骤逻辑
+    - 修正 小米11 Ultra SuSFS 1.5.8 补丁步骤逻辑
+    - 修正 Patch/susfs_upgrade_to_158_5.4.patch
+
+- **Ver.1.5 Fixed 35**
+    - 移植 红米 K20 Pro SuSFS更新步骤
+    - 移植 小米11 Ultra HyperOS A14 SuSFS更新步骤
+    - 增加 Patch/susfs_upgrade_to_158_X_X.patch 系列补丁
+    - 增加 说明文件 对应词条
+    - 增加 示例YAML文件 SuSFS 更新至 1.5.8 补丁步骤
+    - 增加 小米Mix2s SuSFS 更新至 1.5.8 补丁步骤
+    - 增加 小米平板4(Plus) 更新至 1.5.8 补丁步骤
+    - 增加 小米11 Ultra HyperOS A14 SuSFS修补补丁
+    - 修正 说明文件 susfs_upgrade_to_157.patch 参考链接指向
+    - 修正 支持列表 SUSFS v1.5.7 参考链接指向
+
+- **Ver.1.5 Fixed 34**
+    - 移植 小米 10S 完整编译流程
+    - 修正 小米 10S 编译错误
+
+- **Ver.1.5 Fixed 33**
+    - 增加 示例YAML文件 引入 curlx
+    - 增加 说明文件 curlx.sh脚本说明
+    - 增加 红米8 4.19 A15 Older YAML编译方式
+    - 增加 说明文件 curlx.sh脚本说明词条
+    - 修正 示例YAML文件 wget 更改为 curlx
+    - 修正 发布列表 红米8 4.19 A15 Re:Kernel支持
+    - 切换 发布列表 红米8 4.19 A15 为 Older YAML编译方式
+
+- **Ver.1.5 Fixed 32**
+    - 修正 说明文件 susfs_upgrade_to_157.sh 参考链接
+
+- **Ver.1.5 Fixed 31**
+    - 修正 一加8 OOS13 内核版本变量获取
+    - 修正 syscall_hook_patches.sh 执行错误
+
+- **Ver.1.5 Fixed 30**
+    - 切换 一加8 OOS13 修补方式为syscall
+    - 修正 小米平板4(Plus) ROM文本
+    - 修正 红米 8 4.19 A15 ROM文本
+
+- **Ver.1.5 Fixed 29**
+    - 修正 syscall_hook_patches.sh 大量错误
+
+- **Ver.1.5 Fixed 28**
+    - 修正 发布列表 红米 8 4.19 A15 设备
+
+- **Ver.1.5 Fixed 27**
+    - 增加 Arch Linux 示例YAML libxml2-legacy 包安装
+
+- **Ver.1.5 Fixed 26**
+    - 增加 红米 8 4.19 A15 设备
+    - 增加 示例YAML 修复KPM编译异常步骤
+    - 增加 示例YAML Patch Debugger 步骤 跳过错误继续执行
+    - 增加 fix_kpm.patch 补丁
+    - 增加 说明文件 对应变量说明
+    - 增加 发布列表 红米 8 4.19 A15 设备
+
+- **Ver.1.5 Fixed 25**
+    - 修正 小米Mix2s YAML cgroup v2与binder补丁执行
+
+- **Ver.1.5 Fixed 24**
+    - 移植 小米Mix2s YAML 合并config功能
+    - 修正 小米Mix2s ENV文件 Defconfig文件指向
+
+- **Ver.1.5 Fixed 23**
+    - 修正 部分YAML文件 新补丁判定
+
+- **Ver.1.5 Fixed 22**
+    - 命名交换 红米 K40 Gaming MIUI13 A12 和 红米 K40 Gaming HyperOS A13
+
+- **Ver.1.5 Fixed 21**
+    - 重命名 backport_patches_newer.sh backport_patches.sh
+    - 重命名 backport_patches.sh backport_patches_older.sh
+    - 增加 syscall_hook_patches_older.sh 补丁
+    - 修正 部分YAML文件 对于新补丁的调用
+    - 修正 说明文件 对应补丁词条说明
+
+- **Ver.1.5 Fixed 20**
+    - 修正 示例YAML文件 安全生成DTBO功能获取文件错误
+
+- **Ver.1.5 Fixed 19**
+    - 切换 小米Mix2s binder补丁至515补丁
+
+- **Ver.1.5 Fixed 18**
+    - 增加 红米 Note12Pro AlphaDroid 设备
+    - 增加 支持列表 新设备词条
+    - 修正 小米Mix2s ENV文件 ROM文本
+    - 修正 小米 10S ENV文件 ROM文本
+    - 修正 红米 K20 Pro ENV文件 ROM文本
+    - 修正 红米 K20 Pro ENV文件 设备名称
+    - 修正 黑鲨4 ENV文件 ROM文本
+    - 修正 一加8 OOS13 ENV文件 ROM文本
+
+- **Ver.1.5 Fixed 17**
+    - 修正 发布列表 文本错误
+    - 增加 红米 K40 Gaming MIUI13 A12 设备
+    - 增加 红米 K40 Gaming HyperOS A13 设备
+    - 增加 支持列表 新设备词条
+
+- **Ver.1.5 Fixed 16**
+    - 修正 发布列表 SukiSU-Ultra 链接指向错误
+    - 删除 发布列表 KernelSU分支lightsummer233
+
+- **Ver.1.5 Fixed 15**
+    - 修正 支持列表 发布列表 小米Mix2s 打包方式
+
+- **Ver.1.5 Fixed 14**
+    - 修正 小米Mix2s YAML 完整打包功能
+
+- **Ver.1.5 Fixed 13**
+    - 撤回 小米Mix2s HOOK_METHOD为syscall
+
+- **Ver.1.5 Fixed 12**
+    - 移植 小米Mix2s YAML 完整打包功能
+    - 更新 小米Mix2s YAML no-kprobe功能为最新版
+    - 切换 小米Mix2s HOOK_METHOD为syscall
+    - 切换 小米Mix2s 打包方式为Anykernel3
+
+- **Ver.1.5 Fixed 11**
+    - 增加 check_error.sh 错误类型判断和建议
+
+- **Ver.1.5 Fixed 10**
+    - 增加 OPPO K10E 设备
+
+- **Ver.1.5 Fixed 9**
+    - 撤回 小米11 HyperOS A14 设备
+    - 修正 支持列表 小米11 Ultra HyperOS A14 设备命名
+
+- **Ver.1.5 Fixed 8**
+    - 修正 使用SukiSU-Ultra(SUSFS) ENV文件 切换至susfs-main
+    - 增加 支持列表 红米 Note8Pro MIUI12 A11 设备 和 小米11 HyperOS A14 设备
+
+- **Ver.1.5 Fixed 7**
+    - 增加 红米 Note8Pro MIUI12 A11 设备
+    - 增加 小米11 HyperOS A14 设备
+
+- **Ver.1.5 Fixed 6**
+    - 修正 编译错误后依然判定成功以及BUILD_DEBUGGER功能优化
+
+- **Ver.1.5 Fixed 5**
+    - 增加 backport_patches_newer.sh
+    - 增加 Patch/backport_kernel_read_and_kernel_write_to_ksu.patch
+    - 增加 说明文件 部分新补丁说明
+    - 增加 示例YAML 有关新补丁执行的更多判断以及新变量
+
+- **Ver.1.5 Fixed 4**
+    - 移植 一加8 OOS13 no-kprobe完整步骤
+    - 移植 一加8 OOS13 Updated SUSFS Version 步骤
+    - 切换 一加8 OOS13 将HOOK_METHOD改成syscall
+    - 启用 一加8 OOS13 Updated SUSFS Version
+    - 启用 一加8 Nameless Updated SUSFS Version
+    - 修正 支持列表 一加8 OOS13 和 一加8 Nameless Syscall 状态
+    - 修正 发布列表 一加8 OOS13 和 一加8 Nameless Syscall 状态
+
+- **Ver.1.5 Fixed 3**
+    - 增加 syscall_hook_patches.sh 有关walk_component的修补和sys_execve的修补
+    - 增加 syscall 相关说明内容
+
+- **Ver.1.5 Fixed 2**
+    - 修正 found_gcc.sh 设定变量异常
+    - 修正 check_error.sh 部分文本
+    - 增加 示例YAML文件 Analyze compile error步骤有关检测错误自动判定失败
+
+- **Ver.1.5 Fixed 1**
+    - 修正 说明文件 有关KPM Patcher相关说明
+    - 撤回 发布Tag至 1.5-r1
+
+- **Ver.1.5**
+    - 重命名 backport_set_memory.patch set_memory_to_49_and_low.patch
+    - 创建 Patch 目录
+    - 移动 set_memory_to_49_and_low.patch 至 Patch 目录
+    - 移动 susfs_upgrade_to_157.patch 至 Patch 目录
+    - 增加 示例YAML文件 获取内核版本变量全局化
+    - 增加 示例YAML文件 KPM Checker功能增加反向移植set_memory部分
+    - 增加 found_gcc.sh
+    - 增加 示例YAML文件 自动化检测GCC前缀名
+    - 增加 说明文件 有关 found_gcc.sh 相关说明
+    - 增加 check_error.sh
+    - 增加 说明文件 有关 check_error.sh 相关说明
+    - 增加 示例YAML文件 Analyze compile error步骤
+    - 修正 set_memory_to_49_and_low.patch 部分缺少修补和错误修补
+    - 修正 说明文件 补丁相关调整内容
+    - 修正 示例YAML文件 有关DTBO生成功能
+    - 修正 示例YAML文件 有关内核版本获取及判断内容
+    - 修正 所有YAML文件 SUSFS更新补丁所在目录地址错误
+    - 修正 小米Mix2s 有关set_memory相关功能的修改
+    - 修改 发布Tag至 1.5-r1
+    - 删除 说明文件 temp_dtbo.patch词条
+    - 删除 temp_dtbo.patch
+
+---
+
+- **Ver.1.4 Fixed 91**
+    - 修正 说明文件 HOOK_METHOD说明错误
+
+- **Ver.1.4 Fixed 90**
+    - 修正 黑鲨4 HOOK_METHOD为normal
+    - 修正 发布列表 黑鲨4 修补方式为normal
+    - 修正 支持列表 有关syscall的说明
+
+- **Ver.1.4 Fixed 89**
+    - 修正 支持列表 将vfs更名syscall
+    - 修正 发布列表 将vfs更名syscall
+
+- **Ver.1.4 Fixed 88**
+    - 重命名 vfs_hook_patches.sh syscall_hook_patches.sh
+    - 重命名 说明文件 vfs_hook_patches.sh syscall_hook_patches.sh
+    - 合并 normal_patches.sh extra_patches.sh
+    - 增加 syscall_hook_patches.sh 有关hooks.c相关Patch
+    - 增加 说明文件 normal_patches.sh 有关hooks.c的内容和参考链接
+    - 增加 三星 S20 YAML HOOK_METHOD变量
+    - 修正 syscall_hook_patches.sh 判断方式
+    - 修正 说明文件 syscall_hook_patches.sh 有关hooks.c相关内容
+    - 修正 所有YAML文件 Patch no-kprobe 功能
+    - 修正 支持列表 将vfs更名syscall并增加名词相关链接
+    - 修正 红米 K20 Pro 将normal更改为syscall
+    - 删除 extra_patches.sh
+    - 删除 说明文件 有关extra_patches.sh有关内容
+
+- **Ver.1.4 Fixed 87**
+    - 放弃 小米8 NGK
+
 - **Ver.1.4 Fixed 86**
     - 修正 示例YAML文件 生成DTB 对vendor目录下生成的寻址错误
     - 修正 示例YAML文件 检测Proton并设置CROSS_COMPILE的编写错误

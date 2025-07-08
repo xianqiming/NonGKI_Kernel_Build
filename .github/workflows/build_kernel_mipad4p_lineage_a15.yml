@@ -8,7 +8,8 @@ env:
   KERNELSU_METHOD: "shell" # shell, manual and only.
   PATCHES_SOURCE: "PeterTea5822/NonGKI_Kernel_Patches" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
   PATCHES_BRANCH: "main" # [your_branch] -> main
-  HOOK_METHOD: "normal" # manual hook method,can choice vfs and normal.
+  HOOK_METHOD: "normal" # manual hook method,can choice syscall and normal.
+  HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
   PROFILE_NAME: "clover_lineage_a15.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
   KPM_ENABLE: "true" # Only use it for SukiSU-Ultra.
@@ -369,8 +370,6 @@ jobs:
       - name: Patch Kernel for no-kprobe
         run: |
           cd $GITHUB_WORKSPACE
-          KERNEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $1}')
-          PATCHLEVEL=$(echo "${{ env.KERNEL_VERSION }}" | awk -F '.' '{print $2}')
           if grep -q "CONFIG_KSU" "device_kernel/fs/exec.c"; then
             echo "Your kernel source code appears to have been manually patched, so this step is skipped."
           else
@@ -380,44 +379,54 @@ jobs:
                   cd device_kernel
                   bash normal_patches.sh
                   echo "execuated patch successfully."
-                  if [ $KERNEL -lt 5 ] && [ $PATCHLEVEL -lt 14 ]; then
-                      cp /tmp/Patches/extra_patches.sh ./
-                      bash extra_patches.sh
-                      echo "execuated extra patch successfully."
-                  else
-                      echo "your kernel needn't the patch."
-                  fi
                   if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
-                      cp /tmp/Patches/backport_patches.sh ./
-                      bash backport_patches.sh
-                      echo "execuated backport patch successfully."
+                        cp /tmp/Patches/backport_patches_early.sh ./
+                        bash backport_patches_early.sh
+                        echo "execuated backport patch early successfully. "
+                  else
+                      echo "your kernel needn't backport patch."
                   fi
               else
                   echo "Cannot found normal_patches.sh in build project , please check u file existed in build project !"
                   false
               fi
-            elif [[ ${{ env.HOOK_METHOD }} == "vfs" ]]; then
-              if [[ -f "/tmp/Patches/vfs_hook_patches.sh" ]]; then
-                  cp /tmp/Patches/vfs_hook_patches.sh device_kernel/
-                  cd device_kernel
-                  bash vfs_hook_patches.sh
-                  echo "execuated vfs patch successfully."
-                  if [ $KERNEL -lt 5 ] && [ $PATCHLEVEL -lt 14 ]; then
-                      cp /tmp/Patches/extra_patches.sh ./
-                      bash extra_patches.sh
-                      echo "execuated extra patch successfully."
-                  else
-                      echo "your kernel needn't extra patch."
-                  fi
-                  if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
-                      cp /tmp/Patches/backport_patches.sh ./
-                      bash backport_patches.sh
-                      echo "execuated backport patch successfully."
-                  fi
-              else
-                  echo "Cannot found vfs_hook_patches.sh in build project , please check u file existed in build project !"
-                  false
-              fi
+            elif [[ ${{ env.HOOK_METHOD }} == "syscall" ]]; then
+               if [[ -f "/tmp/Patches/syscall_hook_patches_older.sh" ]] && [[ "${{ env.HOOK_OLDER }}" == "true" ]]; then
+                   cp /tmp/Patches/syscall_hook_patches_older.sh device_kernel/
+                   cd device_kernel
+                   bash syscall_hook_patches_older.sh
+                   echo "execuated syscall patch older successfully."
+                   if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
+                     cp /tmp/Patches/backport_patches.sh ./
+                     bash backport_patches.sh
+                     if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ]; then
+                         cp /tmp/Patches/Patch/backport_kernel_read_and_kernel_write_to_ksu.patch ./
+                         patch -p1 < backport_kernel_read_and_kernel_write_to_ksu.patch || true
+                         echo "execuated backport patch kernel_read and kernel_read successfully. If you current kernel version < 4.14, then u maybe manual fixed it."
+                     fi
+                     echo "execuated backport patch successfully. "
+                   else
+                     echo "your kernel needn't backport patch."
+                   fi
+               elif [[ -f "/tmp/Patches/syscall_hook_patches.sh" ]]; then
+                   cp /tmp/Patches/syscall_hook_patches.sh device_kernel/
+                   cd device_kernel
+                   bash syscall_hook_patches.sh
+                   echo "execuated syscall patch successfully."
+                   if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
+                     cp /tmp/Patches/backport_patches.sh ./
+                     bash backport_patches.sh
+                     if [ "${{ env.FIRST_VERSION }}" -lt 5 ] && [ "${{ env.SECOND_VERSION }}" -lt 10 ]; then
+                         cp /tmp/Patches/Patch/backport_kernel_read_and_kernel_write_to_ksu.patch ./
+                         patch -p1 < backport_kernel_read_and_kernel_write_to_ksu.patch || true
+                         echo "execuated backport patch kernel_read and kernel_read successfully. If you current kernel version < 4.14, then u maybe manual fixed it."
+                     fi
+                     echo "execuated backport patch successfully."
+                   fi
+                else
+                   echo "Cannot found syscall_hook_patches.sh in build project , please check u file existed in build project !"
+                   false
+               fi
             else
               echo "please input vaild option!"
               false
@@ -530,9 +539,31 @@ jobs:
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_UPDATE == 'true'
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
-          cp /tmp/Patches/susfs_upgrade_to_157.patch ./
+
+          # Upgrade 1.5.7
+          cp /tmp/Patches/Patch/susfs_upgrade_to_157.patch ./
 
           patch -p1 < susfs_upgrade_to_157.patch || true
+
+          # Upgrade 1.5.8
+          if grep -q "CONFIG_KSU" "fs/exec.c"; then
+            cp /tmp/Patches/Patch/susfs_upgrade_to_158_${{ env.KERNEL_VERSION }}.patch ./
+            patch -p1 < susfs_upgrade_to_158_${{ env.KERNEL_VERSION }}.patch || true
+            echo "Detected no-kprobe hook, use no-kprobe patch."
+          elif [[ "${{ env.KERNEL_VERSION }}" == "5.4" ]]; then
+            cp /tmp/Patches/Patch/susfs_upgrade_to_158_5.4_kprobe.patch ./
+            patch -p1 < susfs_upgrade_to_158_5.4_kprobe.patch || true
+            echo "Cannot detected no-kprobe hook in kernel 5.4, use kprobe patch."
+          else
+            echo "kernel version<5.4 cannot use kprobe patch."
+          fi
+          ## Fixed ZYGOTE_ISO error
+          sed -i '/#define CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS 0x55561/a \#define CMD_SUSFS_UMOUNT_FOR_ZYGOTE_ISO_SERVICE 0x55562' include/linux/susfs_def.h
+
+          # Upgrade 1.5.9
+          cp /tmp/Patches/Patch/susfs_upgrade_to_159.patch ./
+
+          patch -p1 < susfs_upgrade_to_159.patch || true
 
           # Extra SUSFS Patch
           # cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
