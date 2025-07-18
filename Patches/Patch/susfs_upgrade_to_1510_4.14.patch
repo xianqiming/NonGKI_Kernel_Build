@@ -229,7 +229,7 @@ index 52308f1..6e22c86 100644
  	}
  	error = statfs_by_dentry(mnt->mnt.mnt_root, buf);
 diff --git a/fs/susfs.c b/fs/susfs.c
-index 9b92d50..4563dcb 100644
+index 9b92d50..0eb751e 100644
 --- a/fs/susfs.c
 +++ b/fs/susfs.c
 @@ -39,7 +39,7 @@ static LIST_HEAD(LH_SUS_PATH_ANDROID_DATA);
@@ -269,7 +269,7 @@ index 9b92d50..4563dcb 100644
  
  bool susfs_is_base_dentry_android_data_dir(struct dentry* base) {
 -	return (base->d_inode->i_mapping->flags & BIT_ANDROID_DATA_ROOT_DIR);
-+	return (base && !IS_ERR(base) && base->d_inode && (base->d_inode->i_mapping->flags & BIT_ANDROID_DATA_ROOT_DIR);
++	return (base && !IS_ERR(base) && base->d_inode && (base->d_inode->i_mapping->flags & BIT_ANDROID_DATA_ROOT_DIR));
  }
  
  bool susfs_is_base_dentry_sdcard_dir(struct dentry* base) {
