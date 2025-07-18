@@ -237,7 +237,7 @@ index 5e32604..c07f74a 100644
 -	return (likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC) &&
 -							(unlikely(cur_uid != i_uid)));
 +	return (likely(susfs_is_current_non_root_user_app_proc()) &&
-+		unlikely(current_uid().val != i_uid))
++		unlikely(current_uid().val != i_uid));
  }
  
  static inline bool is_i_uid_in_sdcard_not_allowed(void) {
