@@ -299,7 +299,7 @@ index 4a9041d..dc43317 100644
  	}
  #endif
 diff --git a/fs/susfs.c b/fs/susfs.c
-index 5e32604..1007e7f 100644
+index 5e32604..80264df 100644
 --- a/fs/susfs.c
 +++ b/fs/susfs.c
 @@ -29,8 +29,8 @@ bool susfs_is_log_enabled __read_mostly = true;
@@ -460,15 +460,18 @@ index 5e32604..1007e7f 100644
  		spin_unlock(&inode->i_lock);
  		SUSFS_LOGI("set SUS_MOUNT inode state for default KSU mount path '%s'\n", pathname);
  	}
-@@ -523,7 +519,7 @@ static int susfs_update_sus_kstat_inode(char *target_pathname) {
+@@ -523,9 +519,9 @@ static int susfs_update_sus_kstat_inode(char *target_pathname) {
  		return 1;
  	}
  
 -	if (!(inode->i_state & INODE_STATE_SUS_KSTAT)) {
 +	if (!(inode->i_mapping->flags & BIT_SUS_KSTAT)) {
  		spin_lock(&inode->i_lock);
- 		inode->i_state |= INODE_STATE_SUS_KSTAT;
+-		inode->i_state |= INODE_STATE_SUS_KSTAT;
++		set_bit(AS_FLAGS_SUS_MOUNT, &inode->i_mapping->flags);
  		spin_unlock(&inode->i_lock);
+ 	}
+ 	path_put(&p);
 @@ -775,8 +771,8 @@ void susfs_auto_add_try_umount_for_bind_mount(struct path *path) {
  #endif
  
