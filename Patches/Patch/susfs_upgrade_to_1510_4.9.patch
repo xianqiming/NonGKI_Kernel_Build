@@ -299,7 +299,7 @@ index 4a9041d..dc43317 100644
  	}
  #endif
 diff --git a/fs/susfs.c b/fs/susfs.c
-index 5e32604..80264df 100644
+index 5e32604..c2bcb84 100644
 --- a/fs/susfs.c
 +++ b/fs/susfs.c
 @@ -29,8 +29,8 @@ bool susfs_is_log_enabled __read_mostly = true;
@@ -468,7 +468,7 @@ index 5e32604..80264df 100644
 +	if (!(inode->i_mapping->flags & BIT_SUS_KSTAT)) {
  		spin_lock(&inode->i_lock);
 -		inode->i_state |= INODE_STATE_SUS_KSTAT;
-+		set_bit(AS_FLAGS_SUS_MOUNT, &inode->i_mapping->flags);
++		set_bit(AS_FLAGS_SUS_KSTAT, &inode->i_mapping->flags);
  		spin_unlock(&inode->i_lock);
  	}
  	path_put(&p);
