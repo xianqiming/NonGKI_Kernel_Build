@@ -1,4 +1,25 @@
 ## 项目更新日志
+- **Ver.1.5 Fixed 53**
+    - 增加 OPPO K9 Pro LineageOS A15 设备
+    - 增加 发布列表 对应设备信息
+
+- **Ver.1.5 Fixed 52**
+    - 合并 SuSFS上游最新commit
+    - 修正 说明文件 SuSFS参考链接
+
+- **Ver.1.5 Fixed 51**
+    - 增加 发布列表 红米 Note 10 Pro MIUI A13 设备
+    - 增加 发布列表 红米 K40 Gaming HyperOS A13 设备
+    - 修正 支持列表 部分设备状态
+
+- **Ver.1.5 Fixed 50**
+    - 移植 部分示例YAML文件 SuSFS 1.5.10 补丁步骤逻辑
+    - 增加 Patch/susfs_upgrade_to_1510_X_X.patch
+    - 增加 示例YAML文件 SuSFS 1.5.10 补丁步骤逻辑
+    - 增加 说明文件 SuSFS 1.5.10 补丁介绍
+    - 修正 发布列表 小米Mix2s 部分名称
+    - 修正 支持列表 小米Mix2s 小米Mix2 部分名称
+
 - **Ver.1.5 Fixed 49**
     - 增加 部分YAML文件 SuSFS 1.5.9 补丁步骤逻辑
 
