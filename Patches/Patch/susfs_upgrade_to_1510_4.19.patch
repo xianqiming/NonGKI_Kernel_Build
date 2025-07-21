@@ -632,7 +632,7 @@ index c39c314..629ebba 100644
  	u64 susfs_last_fake_mnt_id;
  #endif
 diff --git a/include/linux/susfs_def.h b/include/linux/susfs_def.h
-index 3fcd878..ba4b64c 100644
+index 3fcd878..db14e76 100644
 --- a/include/linux/susfs_def.h
 +++ b/include/linux/susfs_def.h
 @@ -10,6 +10,7 @@
@@ -643,7 +643,7 @@ index 3fcd878..ba4b64c 100644
  #define CMD_SUSFS_ADD_SUS_MOUNT 0x55560
  #define CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS 0x55561
  #define CMD_SUSFS_ADD_SUS_KSTAT 0x55570
-@@ -36,20 +37,22 @@
+@@ -36,20 +37,23 @@
  #define DEFAULT_SUS_MNT_GROUP_ID 1000 /* used by mount->mnt_group_id */
  
  /*
@@ -659,6 +659,7 @@ index 3fcd878..ba4b64c 100644
 -
 -#define TASK_STRUCT_NON_ROOT_USER_APP_PROC BIT(24)
 +#define TIF_NON_ROOT_USER_APP_PROC 33 // thread_info->flags is unsigned long :D
++#define TIF_PROC_SU_NOT_ALLOWED 34
  
 +#define AS_FLAGS_SUS_PATH 24
 +#define AS_FLAGS_SUS_MOUNT 25
@@ -673,7 +674,7 @@ index 3fcd878..ba4b64c 100644
  #define BIT_ANDROID_DATA_ROOT_DIR BIT(28)
  #define BIT_ANDROID_SDCARD_ROOT_DIR BIT(29)
  
-@@ -64,4 +67,28 @@
+@@ -64,4 +68,28 @@
  #define DATA_ADB_NO_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT "/data/adb/susfs_no_auto_add_sus_ksu_default_mount"
  #define DATA_ADB_NO_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT "/data/adb/susfs_no_auto_add_try_umount_for_bind_mount"
  
