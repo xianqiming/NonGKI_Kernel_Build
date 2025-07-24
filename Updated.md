@@ -1,4 +1,9 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 4**
+    - 增加 华为 P10 EMUI 9.1 设备
+    - 增加 荣耀 Honor EMIUI 9.1 设备
+    - 修正 Realme 6 LineageOS Plus ENV文件 Clang地址
+
 - **Ver.1.6 Fixed 3**
     - 增加 Realme 6 LineageOS Plus 设备
 
