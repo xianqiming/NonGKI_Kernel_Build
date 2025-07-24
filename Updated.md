@@ -1,4 +1,8 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 3**
+    - 撤回 发布Tag至 1.5-r1
+    - 修正 部分YAML文件 KPM_PATCH_SOURCE默认值
+
 - **Ver.1.6 Fixed 2**
     - 修正 部分YAML文件 缺少Bin目录问题
 
