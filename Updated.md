@@ -1,4 +1,8 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 1**
+    - 合并 SuSFS上游最新commit
+    - 修正 说明文件 SuSFS参考链接
+
 - **Ver.1.6**
     - 移动 check_error.sh 至 Bin/
     - 移动 found_gcc.sh 至 Bin/
@@ -11,6 +15,8 @@
     - 修正 部分YAML文件 涉及上述sh文件的执行位置修正
     - 删除 示例YAML文件 多余步骤
 
+---
+    
 - **Ver.1.5 Fixed 54**
     - 增加 Realme GT Neo 设备
 
