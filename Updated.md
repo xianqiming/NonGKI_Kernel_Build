@@ -1,4 +1,7 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 2**
+    - 修正 部分YAML文件 缺少Bin目录问题
+
 - **Ver.1.6 Fixed 1**
     - 合并 SuSFS上游最新commit
     - 修正 说明文件 SuSFS参考链接
