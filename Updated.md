@@ -1,4 +1,8 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 5**
+    - 迁移 Realme 6 LineageOS Plus YAML文件至常规版本
+    - 修正 华为 P10 EMUI 9.1 读取ENV错误
+
 - **Ver.1.6 Fixed 4**
     - 增加 华为 P10 EMUI 9.1 设备
     - 增加 荣耀 Honor EMIUI 9.1 设备
