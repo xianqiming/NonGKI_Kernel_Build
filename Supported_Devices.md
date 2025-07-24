@@ -33,6 +33,7 @@
 | 红米 Note 10 Pro | CN | chopin | 4.14/ChopinKernels/chopin_android_T | MIUI 13 | 13 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ | ❌ | ❌ | Beta |  
 | OPPO K9 Pro | CN | PEYM00 | 4.19/mt6893-development/LineageOS | LineageOS 22.X | 15 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 | Realme GT Neo | CN | RMX3031 | 4.19/dek0der/(Nothing) | Based-AOSP | 13 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
+| Realme 6 | All | RMX2001 | 4.14/AbzRaider/LineageOS-Plus | Based-AOSP | 14 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 
 特别说明：
   - 我们提供的KernelSU分支包括：[Next(❌)](https://github.com/KernelSU-Next/KernelSU-Next)、[Magic](https://github.com/backslashxx/KernelSU)、[rsuntk](https://github.com/rsuntk/KernelSU)、[lightsummer233](https://github.com/lightsummer233/KernelSU)、[酷友二创-SukiSU-Ultra](https://github.com/ShirkNeko/SukiSU-Ultra)、[SukiSU](https://github.com/ShirkNeko/KernelSU)

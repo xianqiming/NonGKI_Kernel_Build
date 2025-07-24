@@ -1,4 +1,7 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 3**
+    - 增加 Realme 6 LineageOS Plus 设备
+
 - **Ver.1.6 Fixed 2**
     - 修正 部分YAML文件 缺少Bin目录问题
 
