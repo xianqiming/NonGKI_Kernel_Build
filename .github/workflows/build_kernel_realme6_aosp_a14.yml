@@ -508,7 +508,7 @@ jobs:
           sed -i '/u32 \*mib_val, u8 peer);/a \extern void ufshcd_hba_stop(struct ufs_hba *hba, bool can_sleep);' drivers/scsi/oufs/ufshcd.h
 
           # Fixed HANS
-          sed -i '/#define NETLINK_PORT_HANS[[:space:]]*(0x15356)/a \#define NETLINK_OPPO_HANS       28' drivers/staging/android/hans.c
+          sed -i 's/OPLUS_FEATURE_HANS_FREEZE/CONFIG_OPPO_HANS/g' include/uapi/linux/netlink.h
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
