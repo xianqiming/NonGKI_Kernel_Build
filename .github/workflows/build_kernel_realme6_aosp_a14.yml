@@ -501,6 +501,7 @@ jobs:
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
+          sed -i '/void ufshcd_delay_us(unsigned long us, unsigned long tolerance);/a \void ufshcd_hba_stop(struct ufs_hba *hba);' drivers/scsi/oufs/ufshcd.h
           # Nothing
 
       - name: Added mkdtboimg to kernel (Experiment)
