@@ -1,4 +1,7 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 7**
+    - 移植 OPPO K9 Pro SUSFS更新至v1.5.10
+
 - **Ver.1.6 Fixed 6**
     - 增加 check_error.sh 判断错误类型
 
