@@ -447,6 +447,7 @@ jobs:
           # echo "CONFIG_INIT_STACK_NONE=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_KALLSYMS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_KALLSYMS_ALL=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          echo "# CONFIG_KPROBES is not set" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           # sed -i 's/# CONFIG_SECCOMP is not set/CONFIG_SECCOMP=y/' ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
           wget https://github.com/JackA1ltman/kernel_realme_RMX3031_noksu/commit/0db79e010c3ce6243b730e465836b63a515e7552.patch
