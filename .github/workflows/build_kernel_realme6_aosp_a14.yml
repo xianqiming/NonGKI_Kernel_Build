@@ -1,4 +1,4 @@
-name: Build Kernel Realme 6 (Based-AOSP A14) with KSU
+name: Build Kernel Realme 6 (All A14) with KSU
 on:
   workflow_call:
   workflow_dispatch:
