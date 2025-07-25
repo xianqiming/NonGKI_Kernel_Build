@@ -502,14 +502,6 @@ jobs:
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
 
-          # Fixed ufshcd
-          sed -i 's/static inline void ufshcd_hba_stop(struct ufs_hba \*hba, bool can_sleep)/void ufshcd_hba_stop(struct ufs_hba *hba, bool can_sleep)/g' drivers/scsi/oufs/ufshcd.c
-          sed -i '/int ufshcd_hba_enable(struct ufs_hba \*hba)/i \EXPORT_SYMBOL_GPL(ufshcd_hba_stop);' drivers/scsi/oufs/ufshcd.c
-          sed -i '/u32 \*mib_val, u8 peer);/a \extern void ufshcd_hba_stop(struct ufs_hba *hba, bool can_sleep);' drivers/scsi/oufs/ufshcd.h
-
-          # Fixed HANS
-          sed -i 's/OPLUS_FEATURE_HANS_FREEZE/CONFIG_OPPO_HANS/g' include/uapi/linux/netlink.h
-
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
         run: |
