@@ -113,6 +113,9 @@ process_error_block() {
     elif grep -q "assembler command failed with exit code 1" <<< "${error_block[@]}"; then
         error_type="Clang编译器错误"
         suggestion="建议: 更换Clang编译器版本"
+    elif grep -q "incompatible pointer types passing 'atomic_long_t *'" <<< "${error_block[@]}"; then
+        error_type="源代码指针类型错误"
+        suggestion="建议: 通常为嵌入手动修补后cred.h产生的错误，将代码中atomic_inc_not_zero更换成atomic_long_inc_not_zero即可"
     fi
 
     echo "Error: $error_type"

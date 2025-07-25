@@ -1,4 +1,7 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 6**
+    - 增加 check_error.sh 判断错误类型
+
 - **Ver.1.6 Fixed 5**
     - 迁移 Realme 6 LineageOS Plus YAML文件至常规版本
     - 修正 华为 P10 EMUI 9.1 读取ENV错误
