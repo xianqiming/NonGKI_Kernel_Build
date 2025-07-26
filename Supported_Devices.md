@@ -60,5 +60,5 @@
   - 红米 K40 Gaming 内核与 Poco F3 GT 通用
   - 红米 8 内核与 红米 8a 通用；理论上LineageOS系的系统，只要是4.19内核都通用 (无论是安卓几)
   - 红米 Note 10 Pro 内核与 Poco X3 GT 通用
-  - OPPO K9 Pro 与 Realme GT Neo 与 Realme X7 Max 5G(India) 与 Oneplus Nord 2 5G 通用
+  - OPPO K9 Pro 与 Realme GT Neo 与 Realme GT Neo 闪速版 与 Realme GT Neo 2T 与 Realme X7 Max 5G(India) 与 Oneplus Nord 2 5G 通用
   - Realme 6 与 Realme 6i(Indian) 与 Realme 6s 与 Realme 7 与 Realme Narzo 与 Realme Narzo 20 Pro 与 Realme Narzo 30 通用
