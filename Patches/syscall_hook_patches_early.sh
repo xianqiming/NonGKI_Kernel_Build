@@ -5,7 +5,6 @@
 # 20250309
 
 patch_files=(
-    arch/arm/kernel/sys_arm.c
     fs/exec.c
     fs/open.c
     fs/read_write.c
@@ -26,15 +25,6 @@ for i in "${patch_files[@]}"; do
     fi
 
     case $i in
-
-    # arch/arm/kernel/ changes
-    ## sys_arm.c
-    arch/arm/kernel/sys_arm.c)
-        if [ "$FIRST_VERSION" -lt 4 ] && [ "$SECOND_VERSION" -lt 18 ]; then
-            sed -i '/asmlinkage int sys_execve(const char __user \*filenamei,/i \#ifdef CONFIG_KSU\nextern bool ksu_execveat_hook __read_mostly;\nextern int ksu_handle_execve_sucompat(int *fd, const char __user **filename_user,\n\t\t\t\t        void *__never_use_argv, void *__never_use_envp,\n\t\t\t\t        int *__never_use_flags);\nextern int ksu_handle_execve_ksud(const char __user *filename_user,\n\t\t\tconst char __user *const __user *__argv);\n#endif' arch/arm/kernel/sys_arm.c
-            sed -i '/error = PTR_ERR(filename);/a \#ifdef CONFIG_KSU\n\tif (unlikely(ksu_execveat_hook))\n\t\tksu_handle_execve_ksud(filename, argv);\n\telse\n\t\tksu_handle_execve_sucompat((int *)AT_FDCWD, &filename, NULL, NULL, NULL);\n#endif' arch/arm/kernel/sys_arm.c
-        fi
-        ;;
 
     # fs/ changes
     ## exec.c
@@ -94,6 +84,13 @@ for i in "${patch_files[@]}"; do
     drivers/input/input.c)
         sed -i '0,/void input_event(struct input_dev \*dev,/s//#ifdef CONFIG_KSU\nextern bool ksu_input_hook __read_mostly;\nextern int ksu_handle_input_handle_event(unsigned int \*type, unsigned int \*code, int \*value);\n#endif\n&/' drivers/input/input.c
         sed -i '0,/\tif (is_event_supported(type, dev->evbit, EV_MAX)) {/s//#ifdef CONFIG_KSU\n\tif (unlikely(ksu_input_hook))\n\t\tksu_handle_input_handle_event(\&type, \&code, \&value);\n#endif\n&/' drivers/input/input.c
+        ;;
+
+    # drivers/tty changes
+    ## pty.c
+    drivers/tty/pty.c)
+        sed -i '0,/static struct tty_struct \*pts_unix98_lookup(struct tty_driver \*driver,/s//#ifdef CONFIG_KSU\nextern int ksu_handle_devpts(struct inode*);\n#endif\n&/' drivers/tty/pty.c
+        sed -i ':a;N;$!ba;s/\(\tmutex_lock(&devpts_mutex);\)/#ifdef CONFIG_KSU\n\tksu_handle_devpts((struct inode *)file->f_path.dentry->d_inode);\n#endif\n\1/2' drivers/tty/pty.c
         ;;
 
     # security/ changes

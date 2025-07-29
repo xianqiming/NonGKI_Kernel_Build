@@ -1,4 +1,7 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 8**
+    - 修正 syscall_hook_patches_early.sh 缺失的pty.c修补
+
 - **Ver.1.6 Fixed 7**
     - 移植 OPPO K9 Pro SUSFS更新至v1.5.10
 
