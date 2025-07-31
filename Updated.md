@@ -1,4 +1,8 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 9**
+    - 移植 红米 K20 Pro SUSFS更新至v1.5.10
+    - 切换 红米 K20 Pro KernelSU分支至susfs-main
+
 - **Ver.1.6 Fixed 8**
     - 修正 syscall_hook_patches_early.sh 缺失的pty.c修补
 
