@@ -149,7 +149,7 @@ jobs:
           # KSU_NEXT_VERSION=$(cd KernelSU-Next && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           git clone -b master https://github.com/backslashxx/KernelSU.git KernelSU-Magic
           KSU_MAGIC_VERSION=$(cd KernelSU-Magic && expr $(/usr/bin/git rev-list --count HEAD) + 10200 - 32)
-          git clone -b susfs-v1.5.7 https://github.com/rsuntk/KernelSU.git KernelSU-rsuntk
+          git clone -b susfs-main https://github.com/rsuntk/KernelSU.git KernelSU-rsuntk
           KSU_RSUNTK_VERSION=$(cd KernelSU-rsuntk && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           git clone -b susfs-main https://github.com/ShirkNeko/SukiSU-Ultra.git KernelSU-SukiSU-Ultra
           KSU_SUKISU_ULTRA_VERSION=$(cd KernelSU-SukiSU-Ultra && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
