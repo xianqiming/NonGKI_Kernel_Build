@@ -1,4 +1,10 @@
 ## 项目更新日志
+- **Ver.1.6 Fixed 10**
+    - 移植 一加8 OOS13 SUSFS更新至v1.5.10
+    - 切换 一加8 OOS13 KernelSU分支至SukiSU
+    - 修正 支持列表 部分设备信息
+    - 修正 发布列表 部分设备信息
+    
 - **Ver.1.6 Fixed 9**
     - 移植 红米 K20 Pro SUSFS更新至v1.5.10
     - 切换 红米 K20 Pro KernelSU分支至susfs-main
