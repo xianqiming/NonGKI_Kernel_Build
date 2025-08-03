@@ -165,7 +165,7 @@ Below is an introduction to the patches included in the Patches directory:
     
 - **syscall_hook_patches_early.sh**
     - Variable: None
-    - This is the original version of the syscall patch, intended for situations where you need syscall functionality but the latest version fails to execute.
+    - This is the original version of the syscall patch, intended for situations where you need syscall functionality but the latest version fails to execute. Given that most KernelSU forks have been updated to at least Syscall 1.4, I will no longer maintain this patch in the future. However, I will keep the patch available for manual execution.
     - Reference: https://github.com/backslashxx/KernelSU/issues/5
 
 - **syscall_hook_patches_older.sh**

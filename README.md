@@ -170,7 +170,7 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   
 - **syscall_hook_patches_early.sh**
   - 暂无执行方式
-  - syscall的最初版本，适用于需要syscall但执行最新版失败的情况
+  - syscall的最初版本，适用于需要syscall但执行最新版失败的情况，由于大部分KernelSU分支已经至少更新支持到Syscall 1.4，因此在未来我将不再维护该补丁，但会保留该补丁并可用于手动执行
   - 参考：https://github.com/backslashxx/KernelSU/issues/5
   
 - **backport_patches.sh** 
