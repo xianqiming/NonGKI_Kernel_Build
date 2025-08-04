@@ -2,7 +2,7 @@
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/JackA1ltman/NonGKI_Kernel_Build/main)![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/JackA1ltman/NonGKI_Kernel_Build/latest/total)  
 [Supported Devices](Supported_Devices.md) | [中文文档](README.md) | English | [Updated Logs](Updated.md)  
 
-**Ver**.1.6
+**Ver**.1.6 Final
 
 **Non-GKI**: What we commonly refer to as Non-GKI includes both GKI1.0 (kernel versions 4.19-5.4) (5.4 is QGKI) and true Non-GKI (kernel versions ≤ 4.14).  
 
