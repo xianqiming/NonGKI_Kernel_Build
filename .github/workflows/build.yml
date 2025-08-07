@@ -17,6 +17,9 @@ on:
         type: boolean
         default: true
 
+  schedule:
+    - cron: '30 7 * * 1'
+
 jobs:
   build_kernel_op8_oos131_a13:
     uses: ./.github/workflows/build_kernel_op8_oos13.1_a13.yml
