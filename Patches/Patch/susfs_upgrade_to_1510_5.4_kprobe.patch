@@ -245,7 +245,7 @@ index 05bffae..88bad96 100644
  		if (!IS_ERR(fake_pathname)) {
  			restore_nameidata();
 diff --git a/fs/namespace.c b/fs/namespace.c
-index ac8fd8f..26c984d 100644
+index ac8fd8f..80c4110 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -1079,7 +1079,7 @@ bypass_orig_flow:
@@ -257,21 +257,21 @@ index ac8fd8f..26c984d 100644
  	//   fake mnt_id for this mount
  	if (susfs_is_current_zygote_domain()) {
  		mnt_ns = current->nsproxy->mnt_ns;
-@@ -1182,9 +1182,9 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
- 	int mnt_id;
- 
+@@ -1184,7 +1184,7 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
  	bool is_current_ksu_domain = susfs_is_current_ksu_domain();
--	bool is_current_zygote_domain = susfs_is_current_zygote_domain();
-+	bool is_zygote_not_copy_mnt_ns = (susfs_is_current_zygote_domain() && !(flag & CL_COPY_MNT_NS));
+ 	bool is_current_zygote_domain = susfs_is_current_zygote_domain();
  
 -	/* - It is very important that we need to use CL_COPY_MNT_NS to identify whether 
 +	/* - It is very important that we need to use CL_COPY_MNT_NS to identify whether
  	 *   the clone is a copy_tree() or single mount like called by __do_loopback()
  	 * - if caller process is KSU, consider the following situation:
  	 *     1. it is NOT doing unshare => call alloc_vfsmnt() to assign a new sus mnt_id
-@@ -2042,7 +2042,7 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
+@@ -2040,9 +2040,9 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
+ {
+ 	struct mount *res, *p, *q, *r, *parent;
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
- 	bool is_current_zygote_domain = susfs_is_current_zygote_domain();
+-	bool is_current_zygote_domain = susfs_is_current_zygote_domain();
++    bool is_zygote_not_copy_mnt_ns = (susfs_is_current_zygote_domain() && !(flag & CL_COPY_MNT_NS));
  #endif
 -	
 +
