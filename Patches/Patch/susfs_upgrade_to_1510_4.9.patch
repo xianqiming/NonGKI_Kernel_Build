@@ -184,7 +184,7 @@ index 6634dc4..1f42790 100644
  		if (!IS_ERR(fake_pathname)) {
  			restore_nameidata();
 diff --git a/fs/namespace.c b/fs/namespace.c
-index fa8599d..eaa32e8 100644
+index fa8599d..fdb743b 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -1102,7 +1102,7 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void
@@ -273,7 +273,7 @@ index fa8599d..eaa32e8 100644
  	while (p) {
  		q->mnt_ns = new_ns;
  		new_ns->mounts++;
-@@ -3330,19 +3335,12 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
+@@ -3330,20 +3335,12 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
  			p = next_mnt(p, old);
  	}
  #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -288,17 +288,19 @@ index fa8599d..eaa32e8 100644
 -			if (unlikely(q->mnt_id >= DEFAULT_SUS_MNT_ID)) {
 -				continue;
 -			}
-+	// Here We are only interested in processes of which original mnt namespace belongs to zygote
-+		if (likely(is_zygote_pid && (q->mnt_id < DEFAULT_SUS_MNT_ID))) {
-+			// q->mnt.susfs_mnt_id_backup -> original mnt_id
-+			// q->mnt_id -> to be modified to the fake mnt_id
- 			q->mnt.susfs_mnt_id_backup = q->mnt_id;
+-			q->mnt.susfs_mnt_id_backup = q->mnt_id;
 -			q->mnt_id = last_entry_mnt_id++;
-+			q->mnt_id = ++last_entry_mnt_id;
- 		}
+-		}
++	// Here We are only interested in processes of which original mnt namespace belongs to zygote
++	if (likely(is_zygote_pid && (q->mnt_id < DEFAULT_SUS_MNT_ID))) {
++		// q->mnt.susfs_mnt_id_backup -> original mnt_id
++		// q->mnt_id -> to be modified to the fake mnt_id
++		q->mnt.susfs_mnt_id_backup = q->mnt_id;
++		q->mnt_id = ++last_entry_mnt_id;
  	}
  #endif
-@@ -3920,4 +3918,4 @@ bool susfs_is_mnt_devname_ksu(struct path *path) {
+ 
+@@ -3920,4 +3917,4 @@ bool susfs_is_mnt_devname_ksu(struct path *path) {
  	}
  	return false;
  }
