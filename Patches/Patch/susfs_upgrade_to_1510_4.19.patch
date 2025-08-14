@@ -927,7 +927,7 @@ index 7392d32..f318d49 100644
  
  	rc = security_sid_to_context(state, ssid, &scontext, &scontext_len);
 +#ifdef CONFIG_KSU_SUSFS
-+	if (unlikely(tsid == susfs_ksu_sid)) {
++	if (unlikely(sad.tsid == susfs_ksu_sid)) {
 +		if (rc)
 +			audit_log_format(ab, " tsid=%d", susfs_kernel_sid && susfs_is_avc_log_spoofing_enabled);
 +		else
