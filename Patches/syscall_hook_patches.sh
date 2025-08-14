@@ -48,9 +48,19 @@ for i in "${patch_files[@]}"; do
             sed -i '/SYSCALL_DEFINE3(execve,/i \#ifdef CONFIG_KSU\nextern __attribute__((hot)) int ksu_handle_execve_sucompat(int \*fd,\n\t\t\t\tconst char __user \*\*filename_user,\n\t\t\t\tvoid \*__never_use_argv,\n\t\t\t\tvoid \*__never_use_envp,\n\t\t\t\tint \*__never_use_flags);\n#endif' fs/exec.c
             sed -i '/struct filename \*path = getname(filename);/i \#ifdef CONFIG_KSU\n\tksu_handle_execve_sucompat((int \*)AT_FDCWD, &filename, NULL, NULL, NULL);\n#endif' fs/exec.c
         else
-            sed -i '/SYSCALL_DEFINE3(execve,/i \#ifdef CONFIG_KSU\nextern __attribute__((hot)) int ksu_handle_execve_sucompat(int \*fd,\n\t\t\t       const char __user \*\*filename_user,\n\t\t\t       void \*__never_use_argv, void \*__never_use_envp,\n\t\t\t       int \*__never_use_flags);\n#endif' fs/exec.c
-            sed -i '/return do_execve(getname(filename), argv, envp);/i \#ifdef CONFIG_KSU\n\tksu_handle_execve_sucompat((int \*)AT_FDCWD, &filename, NULL, NULL, NULL);\n#endif' fs/exec.c
-            sed -i '/return compat_do_execve(getname(filename), argv, envp);/i \#ifdef CONFIG_KSU\n\tksu_handle_execve_sucompat((int \*)AT_FDCWD, &filename, NULL, NULL, NULL);\n#endif' fs/exec.c
+            sed -i '/int do_execve(struct filename \*filename,/i \#ifdef CONFIG_KSU\n__attribute__((hot))\nextern int ksu_handle_execveat(int \*fd, struct filename \*\*filename_ptr,\n\t\t\t\tvoid \*argv, void \*envp, int \*flags);\n#endif' fs/exec.c
+            sed -i '0,/return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);/ { /return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);/i \#ifdef CONFIG_KSU\n\tksu_handle_execveat((int \*)AT_FDCWD, &filename, &argv, &envp, 0);\n#endif
+                                                                   }' fs/exec.c
+            sed -i '/return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);/{
+                                                              x
+                                                              s/^/I/
+                                                              /II/{
+                                                              x
+                                                              i \#ifdef CONFIG_KSU\n\tksu_handle_execveat((int \*)AT_FDCWD, &filename, &argv, &envp, 0);\n#endif
+                                                              x
+                                                              }
+                                                              x
+                                                              }' fs/exec.c
         fi
         ;;
 
