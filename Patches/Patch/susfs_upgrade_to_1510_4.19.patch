@@ -878,7 +878,7 @@ index 3fcd878..25865ba 100644
 +
  #endif // #ifndef KSU_SUSFS_DEF_H
 diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 7392d32..e5235df 100644
+index 7392d32..f318d49 100644
 --- a/security/selinux/avc.c
 +++ b/security/selinux/avc.c
 @@ -164,6 +164,11 @@ static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
@@ -893,10 +893,15 @@ index 7392d32..e5235df 100644
  
  /**
   * avc_dump_query - Display a SID pair and a class in human-readable form.
-@@ -187,6 +192,15 @@ static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
- 	}
+@@ -177,8 +182,20 @@ static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
+ 	int rc;
+ 	char *scontext;
+ 	u32 scontext_len;
++#ifdef CONFIG_KSU_SUSFS
++	struct selinux_audit_data sad;
++#endif
  
- 	rc = security_sid_to_context(state, tsid, &scontext, &scontext_len);
+ 	rc = security_sid_to_context(state, ssid, &scontext, &scontext_len);
 +#ifdef CONFIG_KSU_SUSFS
 +	if (unlikely(tsid == susfs_ksu_sid)) {
 +		if (rc)
@@ -907,15 +912,23 @@ index 7392d32..e5235df 100644
 +	}
 +#endif
  	if (rc)
- 		audit_log_format(ab, " tsid=%d", tsid);
+ 		audit_log_format(ab, "ssid=%d", ssid);
  	else {
-@@ -197,6 +211,9 @@ static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
+@@ -186,6 +203,9 @@ static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
+ 		kfree(scontext);
+ 	}
+ 
++#ifdef CONFIG_KSU_SUSFS
++bypass_orig_flow:
++#endif
+ 	rc = security_sid_to_context(state, tsid, &scontext, &scontext_len);
+ 	if (rc)
+ 		audit_log_format(ab, " tsid=%d", tsid);
+@@ -197,7 +217,6 @@ static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
  	BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
  	audit_log_format(ab, " tclass=%s", secclass_map[tclass-1].name);
  }
-+
-+#ifdef CONFIG_KSU_SUSFS
-+bypass_orig_flow:
- #endif
+-#endif
  
  /**
+  * avc_init - Initialize the AVC.
