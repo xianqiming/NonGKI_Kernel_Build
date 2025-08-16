@@ -777,7 +777,7 @@ jobs:
                       rm -f Image
                       mv oImage Image
                       gzip -c Image > Image.gz
-                      cat Image.gz dts/${{ env.GENERATE_CHIP }}/*.dtbo > Image.gz-dtb
+                      cat Image.gz dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
                       echo "Hook Image successfully !"
                   elif [ -d "out/arch/arm64/boot/vendor/dts" ]; then
                       rm -f "$IMAGE_DIR/Image.gz-dtb" "$IMAGE_DIR/Image.gz"
@@ -787,7 +787,7 @@ jobs:
                       rm -f Image
                       mv oImage Image
                       gzip -c Image > Image.gz
-                      cat Image.gz vendor/dts/${{ env.GENERATE_CHIP }}/*.dtbo > Image.gz-dtb
+                      cat Image.gz vendor/dts/${{ env.GENERATE_CHIP }}/*.dtb > Image.gz-dtb
                       echo "Hook Image successfully !"
                   else
                       echo "Not found dts folder, abort."
@@ -815,7 +815,7 @@ jobs:
                       ./patch
                       rm -f Image
                       mv oImage Image
-                      cat Image dts/${{ env.GENERATE_CHIP }}/*.dtbo > Image-dtb
+                      cat Image dts/${{ env.GENERATE_CHIP }}/*.dtb > Image-dtb
                       echo "Hook Image successfully !"
                   elif [ -d "out/arch/arm64/boot/vendor/dts" ]; then
                       rm -f "$IMAGE_DIR/Image-dtb"
@@ -824,7 +824,7 @@ jobs:
                       ./patch
                       rm -f Image
                       mv oImage Image
-                      cat Image vendor/dts/${{ env.GENERATE_CHIP }}/*.dtbo > Image-dtb
+                      cat Image vendor/dts/${{ env.GENERATE_CHIP }}/*.dtb > Image-dtb
                       echo "Hook Image successfully !"
                   else
                       echo "Not found dts folder, abort."
@@ -897,15 +897,15 @@ jobs:
             cp -fp $IMAGE_DIR/dtb tmp
           elif [ "${{ env.GENERATE_DTB }}" == "true" ]; then
             if [ -d "$IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}" ]; then
-                cat $IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}/*.dtbo > $IMAGE_DIR/DTB
+                cat $IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
                 cp -fp $IMAGE_DIR/DTB tmp
                 echo "Generated ${{ env.GENERATE_CHIP }} DTB."
             elif [ -d "$IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}" ]; then
-                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtbo > $IMAGE_DIR/DTB
+                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
                 cp -fp $IMAGE_DIR/DTB tmp
                 echo "Generated ${{ env.GENERATE_CHIP }} DTB."
             else
-                echo "Missing .dtbo file in dts or dts/vendor ! Generate Failed !"
+                echo "Missing .dtb file in dts or dts/vendor ! Generate Failed !"
                 false
             fi
           else
@@ -957,15 +957,15 @@ jobs:
             cp -fp $IMAGE_DIR/dtb out/dtb
           elif [ "${{ env.GENERATE_DTB }}" == "true" ]; then
             if [ -d "$IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}" ]; then
-                cat $IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}/*.dtbo > $IMAGE_DIR/DTB
+                cat $IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
                 cp -fp $IMAGE_DIR/DTB tmp
                 echo "Generated ${{ env.GENERATE_CHIP }} DTB."
             elif [ -d "$IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}" ]; then
-                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtbo > $IMAGE_DIR/DTB
+                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
                 cp -fp $IMAGE_DIR/DTB tmp
                 echo "Generated ${{ env.GENERATE_CHIP }} DTB."
             else
-                echo "Missing .dtbo file in dts or dts/vendor ! Generate Failed !"
+                echo "Missing .dtb file in dts or dts/vendor ! Generate Failed !"
                 false
             fi
           else
