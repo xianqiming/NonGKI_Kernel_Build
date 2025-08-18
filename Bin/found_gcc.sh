@@ -4,40 +4,13 @@
 
 find_toolchain_prefix() {
     local toolchain_bin_dir="$1"
-    local possible_prefixes=()
     local real_target_name=""
+    local fallback_prefixes=()
 
     if [ ! -d "$toolchain_bin_dir" ]; then
         echo "Error: Folder '$toolchain_bin_dir' not existed." >&2
         return 1
     fi
-
-    for compiler_path in "$toolchain_bin_dir"/*gcc; do
-        if [ -x "$compiler_path" ] && [ -f "$compiler_path" ]; then
-            real_target_name=$(basename "$(readlink -f "$compiler_path")")
-            if [[ "$real_target_name" == *gcc ]]; then
-                prefix="${real_target_name%%-gcc*}}"
-                if [ -n "$prefix" ]; then
-                    possible_prefixes+=("$prefix")
-                fi
-            fi
-        fi
-    done
-
-    if [ ${#possible_prefixes[@]} -gt 0 ]; then
-        local best_core_prefix=""
-        local max_len=0
-        for p in "${possible_prefixes[@]}"; do
-            if (( ${#p} > max_len )); then
-                max_len=${#p}
-                best_core_prefix="$p"
-            fi
-        done
-        echo "$best_core_prefix"
-        return 0
-    fi
-
-    local fallback_prefixes=()
 
     for tool_path in "$toolchain_bin_dir"/*nm; do
         if [ -x "$tool_path" ] && [ -f "$tool_path" ]; then
