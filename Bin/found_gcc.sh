@@ -4,61 +4,55 @@
 
 find_toolchain_prefix() {
     local toolchain_bin_dir="$1"
-    local real_target_name=""
-    local fallback_prefixes=()
 
     if [ ! -d "$toolchain_bin_dir" ]; then
         echo "Error: Folder '$toolchain_bin_dir' not existed." >&2
         return 1
     fi
 
-    for tool_path in "$toolchain_bin_dir"/*nm; do
-        if [ -x "$tool_path" ] && [ -f "$tool_path" ]; then
-            real_target_name=$(basename "$(readlink -f "$tool_path")")
-            if [[ "$real_target_name" == *nm ]]; then
-                prefix="${real_target_name%nm}"
-                if [ -n "$prefix" ]; then
-                    fallback_prefixes+=("$prefix")
-                fi
-            fi
-        fi
-    done
+    local tools_to_check=("ar" "nm" "ld" "objdump" "readelf" "strip")
+    local possible_prefixes=()
+    local real_target_name=""
+    local prefix=""
 
-    for tool_path in "$toolchain_bin_dir"/*elfedit; do
-        if [ -x "$tool_path" ] && [ -f "$tool_path" ]; then
-            real_target_name=$(basename "$(readlink -f "$tool_path")")
-            if [[ "$real_target_name" == *elfedit ]]; then
-                prefix="${real_target_name%elfedit}"
-                if [ -n "$prefix" ]; then
-                    fallback_prefixes+=("$prefix")
-                fi
-            fi
-        fi
-    done
+    for tool in "${tools_to_check[@]}"; do
+        for tool_path in "$toolchain_bin_dir"/*"${tool}"; do
+            if [ -x "$tool_path" ] && [ -f "$tool_path" ]; then
+                real_target_name=$(basename "$(readlink -f "$tool_path")")
+                prefix="${real_target_name%%-${tool}}"
 
-    if [ ${#fallback_prefixes[@]} -gt 0 ]; then
-        local best_fallback_prefix=""
-        local max_len=0
-        for p in "${fallback_prefixes[@]}"; do
-            if (( ${#p} > max_len )); then
-                max_len=${#p}
-                best_fallback_prefix="$p"
+                if [ -n "$prefix" ] && [ "$prefix" != "$real_target_name" ]; then
+                    possible_prefixes+=("$prefix-")
+                fi
             fi
         done
-        echo "$best_fallback_prefix"
-        return 0
+    done
+
+    if [ ${#possible_prefixes[@]} -eq 0 ]; then
+        echo "Error: No recognizable toolchain prefixes found in '$toolchain_bin_dir' using tools: ${tools_to_check[*]}" >&2
+        return 1
     fi
 
-    echo "Warning: In '$toolchain_bin_dir' not found any recognizable toolchain executable (gcc/clang/nm/elfedit)." >&2
-    return 1
+    local shortest_prefix=""
+    local min_len=999
+
+    shortest_prefix=$(printf "%s\n" "${possible_prefixes[@]}" | sort -u | awk '{ print length, $0 }' | sort -n | head -n 1 | cut -d' ' -f2-)
+
+    if [ -n "$shortest_prefix" ]; then
+        echo "$shortest_prefix"
+        return 0
+    else
+        echo "Error: Could not determine the shortest prefix." >&2
+        return 1
+    fi
 }
 
 if [ "$1" == "GCC_64" ]; then
     SET="$GITHUB_WORKSPACE/gcc-64/bin"
     REAL_PREFIX=$(find_toolchain_prefix "$SET")
     if [ -n "$REAL_PREFIX" ]; then
-        echo "GCC_64=CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-64/bin/$REAL_PREFIX" >> "$GITHUB_ENV"
-        echo "Detected 64-bit GCC prefix: $REAL_PREFIX"
+        echo "GCC_64_PREFIX=${REAL_PREFIX}" >> "$GITHUB_ENV"
+        echo "Detected shortest 64-bit prefix: ${REAL_PREFIX}"
     else
         echo "Error: Could not determine 64-bit GCC prefix in $SET." >&2
         exit 1
@@ -67,8 +61,8 @@ elif [ "$1" == "GCC_32" ]; then
     SET="$GITHUB_WORKSPACE/gcc-32/bin"
     REAL_PREFIX=$(find_toolchain_prefix "$SET")
     if [ -n "$REAL_PREFIX" ]; then
-        echo "GCC_32=CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/gcc-32/bin/$REAL_PREFIX" >> "$GITHUB_ENV"
-        echo "Detected 32-bit GCC prefix: $REAL_PREFIX"
+        echo "GCC_32_PREFIX=${REAL_PREFIX}" >> "$GITHUB_ENV"
+        echo "Detected shortest 32-bit prefix: ${REAL_PREFIX}"
     else
         echo "Error: Could not determine 32-bit GCC prefix in $SET." >&2
         exit 1
@@ -77,8 +71,8 @@ elif [ "$1" == "GCC_32_ONLY" ]; then
     SET="$GITHUB_WORKSPACE/gcc-32/bin"
     REAL_PREFIX=$(find_toolchain_prefix "$SET")
     if [ -n "$REAL_PREFIX" ]; then
-        echo "GCC_32=CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-32/bin/$REAL_PREFIX" >> "$GITHUB_ENV"
-        echo "Detected 32-bit ONLY GCC prefix: $REAL_PREFIX"
+        echo "GCC_32=CROSS_COMPILE=${REAL_PREFIX}" >> "$GITHUB_ENV"
+        echo "Detected 32-bit ONLY GCC prefix: ${REAL_PREFIX}"
     else
         echo "Error: Could not determine 32-bit ONLY GCC prefix in $SET." >&2
         exit 1
