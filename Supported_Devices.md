@@ -36,6 +36,9 @@
 | Realme 6 | All | RMX2001 | 4.14/AbzRaider/LineageOS-Plus | All | 14 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 | Huawei P10 | All | hi3660 | 4.9/maimaiguanfan/Pangu | EMUI | 9 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 | Honor Hi3660 | All | hi3660 | 4.9/maimaiguanfan/Pangu | EMUI | 9 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
+| 小米 9  | All | cepheus | 4.14/TheVoyager0777/VK-VI-MIUI | MIUI 12 | 11 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
+| 红米 K20 Pro  | CN | raphael | 4.14/weixiaoEK/Marisa-mod | MIUI 12 | 11 | Boot Image | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
+| 红米 K20 Pro  | CN | raphael | 4.14/RuRuTiaSaMa/(Nothing) | MIUI 12 | 11 | Boot Image | rsuntk | ❌ | ❌ | ❌ | ❌ | ❌ | Suspend |  
 
 特别说明：
   - 我们提供的KernelSU分支包括：[Next(❌)](https://github.com/KernelSU-Next/KernelSU-Next)、[Magic](https://github.com/backslashxx/KernelSU)、[rsuntk](https://github.com/rsuntk/KernelSU)、[lightsummer233](https://github.com/lightsummer233/KernelSU)、[酷友二创-SukiSU-Ultra](https://github.com/ShirkNeko/SukiSU-Ultra)、[SukiSU](https://github.com/ShirkNeko/KernelSU)
