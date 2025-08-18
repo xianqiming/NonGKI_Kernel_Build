@@ -51,7 +51,7 @@ if [ "$1" == "GCC_64" ]; then
     SET="$GITHUB_WORKSPACE/gcc-64/bin"
     REAL_PREFIX=$(find_toolchain_prefix "$SET")
     if [ -n "$REAL_PREFIX" ]; then
-        echo "GCC_64=CROSS_COMPILE=${REAL_PREFIX}" >> "$GITHUB_ENV"
+        echo "GCC_64=CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-64/bin/${REAL_PREFIX}" >> "$GITHUB_ENV"
         echo "Detected shortest 64-bit prefix: ${REAL_PREFIX}"
     else
         echo "Error: Could not determine 64-bit GCC prefix in $SET." >&2
@@ -61,7 +61,7 @@ elif [ "$1" == "GCC_32" ]; then
     SET="$GITHUB_WORKSPACE/gcc-32/bin"
     REAL_PREFIX=$(find_toolchain_prefix "$SET")
     if [ -n "$REAL_PREFIX" ]; then
-        echo "GCC_32=CROSS_COMPILE_ARM32=${REAL_PREFIX}" >> "$GITHUB_ENV"
+        echo "GCC_32=CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/gcc-32/bin/${REAL_PREFIX}" >> "$GITHUB_ENV"
         echo "Detected shortest 32-bit prefix: ${REAL_PREFIX}"
     else
         echo "Error: Could not determine 32-bit GCC prefix in $SET." >&2
@@ -71,7 +71,7 @@ elif [ "$1" == "GCC_32_ONLY" ]; then
     SET="$GITHUB_WORKSPACE/gcc-32/bin"
     REAL_PREFIX=$(find_toolchain_prefix "$SET")
     if [ -n "$REAL_PREFIX" ]; then
-        echo "GCC_32=CROSS_COMPILE=${REAL_PREFIX}" >> "$GITHUB_ENV"
+        echo "GCC_32=CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-32/bin/${REAL_PREFIX}" >> "$GITHUB_ENV"
         echo "Detected 32-bit ONLY GCC prefix: ${REAL_PREFIX}"
     else
         echo "Error: Could not determine 32-bit ONLY GCC prefix in $SET." >&2
