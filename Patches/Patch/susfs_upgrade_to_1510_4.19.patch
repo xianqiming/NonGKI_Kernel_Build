@@ -902,7 +902,7 @@ index 3fcd878..25865ba 100644
 +
  #endif // #ifndef KSU_SUSFS_DEF_H
 diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 7392d32..f318d49 100644
+index 7392d32..7eaa379 100644
 --- a/security/selinux/avc.c
 +++ b/security/selinux/avc.c
 @@ -164,6 +164,11 @@ static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
@@ -948,11 +948,3 @@ index 7392d32..f318d49 100644
  	rc = security_sid_to_context(state, tsid, &scontext, &scontext_len);
  	if (rc)
  		audit_log_format(ab, " tsid=%d", tsid);
-@@ -197,7 +217,6 @@ static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
- 	BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
- 	audit_log_format(ab, " tclass=%s", secclass_map[tclass-1].name);
- }
--#endif
- 
- /**
-  * avc_init - Initialize the AVC.
