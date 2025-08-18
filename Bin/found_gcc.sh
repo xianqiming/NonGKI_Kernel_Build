@@ -16,7 +16,7 @@ find_toolchain_prefix() {
         if [ -x "$compiler_path" ] && [ -f "$compiler_path" ]; then
             real_target_name=$(basename "$(readlink -f "$compiler_path")")
             if [[ "$real_target_name" == *gcc ]]; then
-                prefix="${real_target_name%gcc}"
+                prefix="${real_target_name%%-gcc*}}"
                 if [ -n "$prefix" ]; then
                     possible_prefixes+=("$prefix")
                 fi
