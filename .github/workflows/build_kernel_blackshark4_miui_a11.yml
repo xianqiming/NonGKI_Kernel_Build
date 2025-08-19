@@ -40,6 +40,7 @@ jobs:
               KERNELSU_NAME
               SUSFS_ENABLE
               SUSFS_FIXED
+              SUSFS_UPDATE
               AK3_SOURCE
               AK3_BRANCH
               LXC_ENABLE
