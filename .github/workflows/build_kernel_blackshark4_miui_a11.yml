@@ -428,8 +428,8 @@ jobs:
           cp NonGKI_Kernel_Patches/blackshark4_miui12/susfs_158_fixed.patch ./
           cp NonGKI_Kernel_Patches/blackshark4_miui12/susfs_1510_fixed.patch ./
 
-          patch -p1 < susfs_158_fixed.patchh || true
-          patch -p1 < susfs_1510_fixed.patchh || true
+          patch -p1 < susfs_158_fixed.patch || true
+          patch -p1 < susfs_1510_fixed.patch || true
 
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
