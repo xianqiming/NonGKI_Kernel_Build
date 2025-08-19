@@ -379,7 +379,7 @@ jobs:
           cd $GITHUB_WORKSPACE/device_kernel/
           cp NonGKI_Kernel_Patches/blackshark4_miui12/susfs_155_fixed.patch ./
 
-          patch -p1 < susfs_155_fixed.patchh || true
+          patch -p1 < susfs_155_fixed.patch || true
 
       - name: Updated SUSFS Version
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_UPDATE == 'true'
