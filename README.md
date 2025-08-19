@@ -4,7 +4,7 @@
 
 **Ver**.1.6 Final LTS  
 > [!IMPORTANT]
-> v1 版本项目将会进入长期维护模式，也就意味着未来将不会提供功能增强，仅维护当前编译结果
+> v1 版本项目将会进入长期维护模式，也就意味着未来将不会提供功能增强，仅维护当前编译结果  
 > v2 版本将会正式投入使用：[NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
 
 **Non-GKI**：我们常说的Non-GKI包括了GKI1.0（内核版本4.19-5.4）（5.4为QGKI）和真正Non-GKI（内核版本≤4.14）  
