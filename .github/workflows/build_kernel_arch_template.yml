@@ -8,7 +8,7 @@ env:
   KERNELSU_METHOD: "shell" # shell, manual and only.
   PATCHES_SOURCE: "author/source" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
   PATCHES_BRANCH: "branch" # [your_branch] -> main
-  HOOK_METHOD: "normal" # manual hook method,can choice syscall and normal.
+  HOOK_METHOD: "normal" # manual hook method,can choice syscall ,normal and tracepoint.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
   PROFILE_NAME: "codename_rom_template.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
@@ -439,6 +439,23 @@ jobs:
                    echo "Cannot found syscall_hook_patches.sh in build project , please check u file existed in build project !"
                    false
                fi
+            if [[ ${{ env.HOOK_METHOD }} == "tracepoint" ]]; then
+              if [[ -f "/tmp/Patches/tracepoint_hook_patches.sh" ]]; then
+                  cp /tmp/Patches/tracepoint_hook_patches.sh device_kernel/
+                  cd device_kernel
+                  bash tracepoint_hook_patches.sh
+                  echo "execuated tracepoint patch successfully."
+                  if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
+                        cp /tmp/Patches/backport_patches_early.sh ./
+                        bash backport_patches_early.sh
+                        echo "execuated backport patch early successfully. "
+                  else
+                      echo "your kernel needn't backport patch."
+                  fi
+              else
+                  echo "Cannot found tracepoint_hook_patches.sh in build project , please check u file existed in build project !"
+                  false
+              fi
             else
               echo "please input vaild option!"
               false

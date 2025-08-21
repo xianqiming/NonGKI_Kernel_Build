@@ -2,7 +2,7 @@
 # Patches author: ShirkNeko @ Github
 #                 backslashxx @ Github
 # Shell authon: JackA1ltman <cs2dtzq@163.com>
-# Tested kernel versions: 5.4, 4.19, 4.14, 4.9
+# Tested kernel versions: 5.4, 4.19, 4.14, 4.9, 4.4, 3.18
 # 20250821
 
 patch_files=(
@@ -32,7 +32,8 @@ for i in "${patch_files[@]}"; do
     ## exec.c
     fs/exec.c)
         sed -i '/#include <trace\/events\/sched.h>/a \#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)\n#include <..\/drivers\/kernelsu\/ksu_trace.h>\n#endif' fs/exec.c
-        awk '
+        if grep -q "do_execveat_common" fs/exec.c; then
+            awk '
 /return do_execveat_common\(AT_FDCWD, filename, argv, envp, 0\);/ {
     count++;
     if (count == 1) {
@@ -49,7 +50,27 @@ for i in "${patch_files[@]}"; do
     print;
 }
 ' fs/exec.c > fs/exec.c.new
-        mv fs/exec.c.new fs/exec.c
+            mv fs/exec.c.new fs/exec.c
+        else
+awk '
+/return do_execve_common\(filename, argv, envp\);/ {
+    count++;
+    if (count == 1) {
+        print "#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)";
+        print "\ttrace_ksu_trace_execveat_hook((int *)AT_FDCWD, &filename, &argv, &envp, 0);";
+        print "#endif";
+    } else if (count == 2) {
+        print "#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)";
+        print "\ttrace_ksu_trace_execveat_sucompat_hook((int *)AT_FDCWD, &filename, NULL, NULL, NULL); /* 32-bit su */";
+        print "#endif";
+    }
+}
+{
+    print;
+}
+' fs/exec.c > fs/exec.c.new
+            mv fs/exec.c.new fs/exec.c
+        fi
         ;;
 
     ## open.c

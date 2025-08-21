@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 env:
   PACK_METHOD: "Anykernel3" # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
-  HOOK_METHOD: "normal" # manual hook method,can choice syscall and normal.
+  HOOK_METHOD: "tracepoint" # manual hook method,can choice syscall and normal.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
   KPM_ENABLE: "true" # Only use it for SukiSU-Ultra.
   KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
@@ -284,7 +284,6 @@ jobs:
           cp susfs4ksu/kernel_patches/include/linux/* include/linux/
 
       - name: Patch Kernel for no-kprobe
-        if: env.NOTHING == 'true'
         run: |
           cd $GITHUB_WORKSPACE
           if grep -q "CONFIG_KSU" "device_kernel/fs/exec.c"; then
@@ -344,17 +343,24 @@ jobs:
                    echo "Cannot found syscall_hook_patches.sh in build project , please check u file existed in build project !"
                    false
                fi
+            if [[ ${{ env.HOOK_METHOD }} == "tracepoint" ]]; then
+              if [[ -f "/tmp/Patches/tracepoint_hook_patches.sh" ]]; then
+                  cp /tmp/Patches/tracepoint_hook_patches.sh device_kernel/
+                  cd device_kernel
+                  bash tracepoint_hook_patches.sh
+                  echo "execuated tracepoint patch successfully."
+                  if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
+                        cp /tmp/Patches/backport_patches_early.sh ./
+                        bash backport_patches_early.sh
+                        echo "execuated backport patch early successfully. "
+                  else
+                      echo "your kernel needn't backport patch."
+                  fi
             else
               echo "please input vaild option!"
               false
             fi
           fi
-
-      - name: Patch
-        run: |
-          cd $GITHUB_WORKSPACE/device_kernel/
-          cp /tmp/Patches/tracepoint_hook_patches.sh ./
-          bash tracepoint_hook_patches.sh
 
       - name: Extra Kernel Options
         run: |
