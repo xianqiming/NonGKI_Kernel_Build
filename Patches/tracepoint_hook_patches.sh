@@ -2,7 +2,7 @@
 # Patches author: ShirkNeko @ Github
 #                 backslashxx @ Github
 # Shell authon: JackA1ltman <cs2dtzq@163.com>
-# Tested kernel versions: 5.4, 4.19, 4.14
+# Tested kernel versions: 5.4, 4.19, 4.14, 4.9
 # 20250821
 
 patch_files=(
@@ -94,7 +94,12 @@ for i in "${patch_files[@]}"; do
 
     ## pty/pty.c
     drivers/tty/pty.c)
-        sed -i '/#include <linux\/compat.h>/a \#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)\n#include <..\/..\/drivers\/kernelsu\/ksu_trace.h>\n#endif' drivers/tty/pty.c
+        if [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 10 ]; then
+            sed -i '/#include <linux\/poll.h>/a \#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)\n#include <..\/..\/drivers\/kernelsu\/ksu_trace.h>\n#endif' drivers/tty/pty.c
+        else
+            sed -i '/#include <linux\/compat.h>/a \#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)\n#include <..\/..\/drivers\/kernelsu\/ksu_trace.h>\n#endif' drivers/tty/pty.c
+        fi
+
         sed -i '/mutex_lock(&devpts_mutex);/ {
                                                N
                                                /\n[[:space:]]*tty = devpts_get_priv(file->f_path.dentry);/ {
