@@ -283,6 +283,7 @@ jobs:
           cp susfs4ksu/kernel_patches/include/linux/* include/linux/
 
       - name: Patch Kernel for no-kprobe
+        if: env.NOTHING == 'true'
         run: |
           cd $GITHUB_WORKSPACE
           if grep -q "CONFIG_KSU" "device_kernel/fs/exec.c"; then
@@ -347,6 +348,12 @@ jobs:
               false
             fi
           fi
+
+      - name: Patch
+        run: |
+          cd $GITHUB_WORKSPACE/device_kernel/
+          cp /tmp/Patches/tracepoint_hook_patches.sh device_kernel/
+          bash tracepoint_hook_patches.sh
 
       - name: Extra Kernel Options
         run: |
