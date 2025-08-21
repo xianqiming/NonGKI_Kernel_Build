@@ -469,8 +469,8 @@ jobs:
                    echo "Cannot found syscall_hook_patches.sh in build project , please check u file existed in build project !"
                    false
                fi
-            if [[ ${{ env.HOOK_METHOD }} == "tracepoint" ]]; then
-              if [[ -f "/tmp/Patches/tracepoint_hook_patches.sh" ]]; then
+            elif [[ ${{ env.HOOK_METHOD }} == "tracepoint" ]]; then
+               if [[ -f "/tmp/Patches/tracepoint_hook_patches.sh" ]]; then
                   cp /tmp/Patches/tracepoint_hook_patches.sh device_kernel/
                   cd device_kernel
                   bash tracepoint_hook_patches.sh
@@ -482,10 +482,10 @@ jobs:
                   else
                       echo "your kernel needn't backport patch."
                   fi
-              else
+               else
                   echo "Cannot found tracepoint_hook_patches.sh in build project , please check u file existed in build project !"
                   false
-              fi
+               fi
             else
               echo "please input vaild option!"
               false
