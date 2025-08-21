@@ -352,7 +352,7 @@ jobs:
       - name: Patch
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
-          cp /tmp/Patches/tracepoint_hook_patches.sh device_kernel/
+          cp /tmp/Patches/tracepoint_hook_patches.sh ./
           bash tracepoint_hook_patches.sh
 
       - name: Extra Kernel Options
