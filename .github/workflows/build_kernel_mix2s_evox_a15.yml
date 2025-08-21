@@ -480,9 +480,7 @@ jobs:
           # fi
 
           git clone https://github.com/Sakion-Team/Re-Kernel.git
-          cp -r Re-Kernel/Integrate/rekernel ./
-          cp Re-Kernel/Integrate/patches.sh ./
-          bash patches.sh
+          bash Re-Kernel/Integrate/patches.sh
           echo "CONFIG_REKERNEL=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
       - name: Fixed Kernel Patch
