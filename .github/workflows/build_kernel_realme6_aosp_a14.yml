@@ -1,4 +1,4 @@
-name: Build Kernel OPPO K9 Pro (LineageOS 22 A15) with KSU and SUSFS
+name: Build Kernel Realme 6 (All A14) with KSU
 on:
   workflow_call:
   workflow_dispatch:
@@ -10,7 +10,7 @@ env:
   PATCHES_BRANCH: "branch" # [your_branch] -> main
   HOOK_METHOD: "normal" # manual hook method,can choice syscall and normal.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
-  PROFILE_NAME: "PEYM00_los_a15.env" # your profile name.
+  PROFILE_NAME: "RMX2001_aosp_a14.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
   KPM_FIX: "false" # Fix Error When Enabling KPM.
@@ -27,7 +27,7 @@ env:
 jobs:
   build:
     name: Build Kernel by ${{ github.actor }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
@@ -141,7 +141,7 @@ jobs:
             fi
           else
             sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler python3
-            sudo apt-get install zstd libc6 binutils libc6-dev-i386 gcc g++ p7zip p7zip-full -y
+            sudo apt-get install zstd libc6 binutils libc6-dev-i386 gcc g++ p7zip p7zip-full libelf-dev libarchive-tools -y
 
             # Install Libtinfo5
             ${{ env.CURLX }} http://security.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2ubuntu0.1_amd64.deb libtinfo5.deb
@@ -250,7 +250,7 @@ jobs:
             cd clang-custom
             ${{ env.CURLX }} ${{ env.CLANG_SOURCE }} antman
             chmod +x antman
-            bash antman -S
+            bash antman -S=latest --patch=glibc
           else
             echo "You needn't clang!"
           fi
@@ -501,7 +501,6 @@ jobs:
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
-          # Nothing
 
       - name: Added mkdtboimg to kernel (Experiment)
         if: env.HAVE_NO_DTBO == 'true' && env.HAVE_NO_DTBO_TOOL != 'true'
@@ -754,6 +753,8 @@ jobs:
           bash check_error.sh
 
           if [ -f "have_error" ]; then
+            cp /tmp/Bin/pack_error_files.sh ./
+            bash pack_error_files.sh
             false
           else
             echo "Skipped."
@@ -949,6 +950,15 @@ jobs:
           echo "PACK_NAME=${{ env.DEVICE_CODENAME }}-${{ env.ROM_TEXT }}-$TIME-image${{ env.LXC_STATUS }}.img" >> $GITHUB_ENV
 
           rm -f $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
+
+      - name: Upload Build Error Files
+        if: ${{ failure() && env.BUILD_DEBUGGER == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: error_files
+          path: |
+            device_kernel/error.log
+            device_kernel/compile_errors_files.zip
 
       - name: Upload Build Artifacts For Anykernel3
         if: env.PACK_METHOD == 'Anykernel3'

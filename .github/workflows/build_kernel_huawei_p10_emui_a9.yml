@@ -1,16 +1,16 @@
-name: Build Kernel OPPO K9 Pro (LineageOS 22 A15) with KSU and SUSFS
+name: Build Kernel Huawei P10 (EMUI 9.1 A9) with KSU
 on:
   workflow_call:
   workflow_dispatch:
 env:
-  PYTHON_VERSION: "3" # Only 2(Ubuntu 22.04) or 3(Any OS Versions).
-  PACK_METHOD: "Anykernel3" # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
+  PYTHON_VERSION: "2" # Only 2(Ubuntu 22.04) or 3(Any OS Versions).
+  PACK_METHOD: "MKBOOTIMG" # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
   KERNELSU_METHOD: "shell" # shell, manual and only.
   PATCHES_SOURCE: "author/source" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
   PATCHES_BRANCH: "branch" # [your_branch] -> main
-  HOOK_METHOD: "normal" # manual hook method,can choice syscall and normal.
+  HOOK_METHOD: "syscall" # manual hook method,can choice syscall and normal.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
-  PROFILE_NAME: "PEYM00_los_a15.env" # your profile name.
+  PROFILE_NAME: "hi3660_huawei_emui_a9.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
   KPM_FIX: "false" # Fix Error When Enabling KPM.
@@ -27,7 +27,7 @@ env:
 jobs:
   build:
     name: Build Kernel by ${{ github.actor }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
@@ -54,6 +54,17 @@ jobs:
         run: |
           sudo rm -rf /opt/hostedtoolcache
           df -h
+
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          temp-reserve-mb: 64
+          swap-size-mb: 8192
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
 
       - uses: actions/checkout@v4
       - name: Prepare Configuration
@@ -109,6 +120,7 @@ jobs:
           echo "CURLX=/tmp/Bin/curlx.sh" >> $GITHUB_ENV
 
       - name: Maximize build space
+        if: env.nothing == 'true'
         uses: easimon/maximize-build-space@master
         with:
           root-reserve-mb: 2048
@@ -128,7 +140,6 @@ jobs:
           if [ $UBUNTU_VERSION == "22.04" ] || [ $UBUNTU_VERSION == "20.04" ]; then
             sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler
             sudo apt-get install p7zip p7zip-full -y
-            sudo apt-get install libtinfo5 -y
             if [ "${{ env.PYTHON_VERSION }}" == "3" ]; then
                 sudo apt install python2 python3 -y
             elif [ "${{ env.PYTHON_VERSION }}" == "2" ]; then
@@ -142,11 +153,6 @@ jobs:
           else
             sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler python3
             sudo apt-get install zstd libc6 binutils libc6-dev-i386 gcc g++ p7zip p7zip-full -y
-
-            # Install Libtinfo5
-            ${{ env.CURLX }} http://security.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2ubuntu0.1_amd64.deb libtinfo5.deb
-            sudo apt install ./libtinfo5.deb
-            rm -f libtinfo5.deb
           fi
 
       - name: Install GNU GCC
@@ -501,6 +507,7 @@ jobs:
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
+          sed -i 's/YYLTYPE yylloc;/extern YYLTYPE yylloc;/g' scripts/dtc/dtc-lexer.lex.c_shipped
           # Nothing
 
       - name: Added mkdtboimg to kernel (Experiment)
@@ -605,44 +612,9 @@ jobs:
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_UPDATE == 'true'
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
-
-          # Upgrade 1.5.7
           cp /tmp/Patches/Patch/susfs_upgrade_to_157.patch ./
 
           patch -p1 < susfs_upgrade_to_157.patch || true
-
-          # Upgrade 1.5.8
-          if grep -q "CONFIG_KSU" "fs/exec.c"; then
-            cp /tmp/Patches/Patch/susfs_upgrade_to_158_${{ env.KERNEL_VERSION }}.patch ./
-            patch -p1 < susfs_upgrade_to_158_${{ env.KERNEL_VERSION }}.patch || true
-            echo "Detected no-kprobe hook, use no-kprobe patch."
-          elif [[ "${{ env.KERNEL_VERSION }}" == "5.4" ]]; then
-            cp /tmp/Patches/Patch/susfs_upgrade_to_158_5.4_kprobe.patch ./
-            patch -p1 < susfs_upgrade_to_158_5.4_kprobe.patch || true
-            echo "Cannot detected no-kprobe hook in kernel 5.4, use kprobe patch."
-          else
-            echo "kernel version<5.4 cannot use kprobe patch."
-          fi
-          ## Fixed ZYGOTE_ISO error
-          sed -i '/#define CMD_SUSFS_HIDE_SUS_MNTS_FOR_ALL_PROCS 0x55561/a \#define CMD_SUSFS_UMOUNT_FOR_ZYGOTE_ISO_SERVICE 0x55562' include/linux/susfs_def.h
-
-          # Upgrade 1.5.9
-          cp /tmp/Patches/Patch/susfs_upgrade_to_159.patch ./
-
-          patch -p1 < susfs_upgrade_to_159.patch || true
-
-          # Upgrade 1.5.10
-          if grep -q "CONFIG_KSU" "fs/exec.c"; then
-            cp /tmp/Patches/Patch/susfs_upgrade_to_1510_${{ env.KERNEL_VERSION }}.patch ./
-            patch -p1 < susfs_upgrade_to_1510_${{ env.KERNEL_VERSION }}.patch || true
-            echo "Detected no-kprobe hook, use no-kprobe patch to update 1.5.10."
-          elif [[ "${{ env.KERNEL_VERSION }}" == "5.4" ]]; then
-            cp /tmp/Patches/Patch/susfs_upgrade_to_1510_5.4_kprobe.patch ./
-            patch -p1 < susfs_upgrade_to_1510_5.4_kprobe.patch || true
-            echo "Cannot detected no-kprobe hook in kernel 5.4, use kprobe patch to update 1.5.10."
-          else
-            echo "kernel version<5.4 cannot use kprobe patch to update 1.5.10."
-          fi
 
           # Extra SUSFS Patch
           # cp NonGKI_Kernel_Patches/[patch_folder]/[patch_file].patch ./
@@ -903,52 +875,13 @@ jobs:
       - name: Make Latest Boot Image
         if: env.PACK_METHOD == 'MKBOOTIMG'
         run: |
-          cd $GITHUB_WORKSPACE/
+          cd $GITHUB_WORKSPACE/device_kernel
           IMAGE_DIR="$GITHUB_WORKSPACE/device_kernel/out/arch/arm64/boot"
           TIME=$(date +"%Y%m%d%H%M%S")
-          FORMAT_MKBOOTING=$(echo `mkboottools/unpack_bootimg.py --boot_img=boot_source_${{ env.DEVICE_NAME }}.img --format mkbootimg`)
 
-          mkboottools/unpack_bootimg.py --boot_img boot_source_${{ env.DEVICE_NAME }}.img
+          tools/mkbootimg --kernel $IMAGE_DIR/Image.gz --base 0x0 --cmdline "loglevel=4 initcall_debug=n page_tracker=on slub_min_objects=16 unmovable_isolate1=2:192M,3:224M,4:256M printktimer=0xfff0a000,0x534,0x538 androidboot.selinux=enforcing buildvariant=user" --tags_offset 0x07A00000 --kernel_offset 0x00080000 --ramdisk_offset 0x07c00000 --header_version 1 --os_version 9 --os_patch_level 2020-09-05  --output ${{ env.DEVICE_CODENAME }}-${{ env.ROM_TEXT }}-$TIME-image${{ env.LXC_STATUS }}-enforcing.img
 
-          if [[ -f "$IMAGE_DIR/Image.gz-dtb" ]]; then
-            rm -f out/kernel
-            cp -fp $IMAGE_DIR/Image.gz-dtb out/kernel
-            echo "Found Image.gz-dtb !"
-          elif [[ -f "$IMAGE_DIR/Image.gz" ]]; then
-            rm -f out/kernel
-            cp -fp $IMAGE_DIR/Image.gz out/kernel
-            echo "Found Image.gz !"
-          elif [[ -f "$IMAGE_DIR/Image" ]]; then
-            rm -f out/kernel
-            cp -fp $IMAGE_DIR/Image out/kernel
-            echo "Found Image !"
-          fi
-
-          if [ -f "$IMAGE_DIR/dtb" ]; then
-            echo "Found DTB!"
-            cp -fp $IMAGE_DIR/dtb out/dtb
-          elif [ "${{ env.GENERATE_DTB }}" == "true" ]; then
-            if [ -d "$IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}" ]; then
-                cat $IMAGE_DIR/dts/vendor/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
-                cp -fp $IMAGE_DIR/DTB tmp
-                echo "Generated ${{ env.GENERATE_CHIP }} DTB."
-            elif [ -d "$IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}" ]; then
-                cat $IMAGE_DIR/dts/${{ env.GENERATE_CHIP }}/*.dtb > $IMAGE_DIR/DTB
-                cp -fp $IMAGE_DIR/DTB tmp
-                echo "Generated ${{ env.GENERATE_CHIP }} DTB."
-            else
-                echo "Missing .dtb file in dts or dts/vendor ! Generate Failed !"
-                false
-            fi
-          else
-            echo "Doesn't found DTB! Your device maybe needn't the file."
-          fi
-
-          eval "mkboottools/mkbootimg.py $FORMAT_MKBOOTING -o ${{ env.DEVICE_CODENAME }}-${{ env.ROM_TEXT }}-$TIME-image${{ env.LXC_STATUS }}.img"
-
-          echo "PACK_NAME=${{ env.DEVICE_CODENAME }}-${{ env.ROM_TEXT }}-$TIME-image${{ env.LXC_STATUS }}.img" >> $GITHUB_ENV
-
-          rm -f $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
+          echo "PACK_NAME=${{ env.DEVICE_CODENAME }}-${{ env.ROM_TEXT }}-$TIME-image${{ env.LXC_STATUS }}-enforcing.img" >> $GITHUB_ENV
 
       - name: Upload Build Artifacts For Anykernel3
         if: env.PACK_METHOD == 'Anykernel3'
@@ -964,4 +897,4 @@ jobs:
         with:
           name: Kernel-${{ env.PACK_NAME }}
           path: |
-            ${{ env.PACK_NAME }}
+            device_kernel/${{ env.PACK_NAME }}

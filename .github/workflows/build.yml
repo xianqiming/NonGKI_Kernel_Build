@@ -17,51 +17,67 @@ on:
         type: boolean
         default: true
 
+  schedule:
+    - cron: '30 7 * * 1'
+
 jobs:
+  set_kernels_to_build:
+    runs-on: ubuntu-latest
+    outputs:
+      kernels_to_build: ${{ steps.set_output.outputs.kernels_to_build }}
+    steps:
+      - id: set_output
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "kernels_to_build=all" >> $GITHUB_OUTPUT
+          else
+            echo "kernels_to_build=${{ inputs.kernels_to_build }}" >> $GITHUB_OUTPUT
+          fi
+
   build_kernel_op8_oos131_a13:
     uses: ./.github/workflows/build_kernel_op8_oos13.1_a13.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 'op8_oos131_a13') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 'op8_oos131_a13') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
   build_kernel_k20p_aosp_a15:
     uses: ./.github/workflows/build_kernel_k20p_aosp_a15.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 'k20p_aosp_a15') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 'k20p_aosp_a15') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
   build_kernel_mix2s_evox_a15:
     uses: ./.github/workflows/build_kernel_mix2s_evox_a15.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 'mix2s_evox_a15') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 'mix2s_evox_a15') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
   build_kernel_blackshark4_miui_a11:
     uses: ./.github/workflows/build_kernel_blackshark4_miui_a11.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 'blackshark4_miui_a11') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 'blackshark4_miui_a11') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
   build_kernel_mi10s_aosp_a15:
     uses: ./.github/workflows/build_kernel_mi10s_aosp_a15.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 'mi10s_aosp_a15') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 'mi10s_aosp_a15') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
   build_kernel_op8_nameless15_a15:
     uses: ./.github/workflows/build_kernel_op8_nameless15_a15.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 'op8_nameless15_a15') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 'op8_nameless15_a15') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
   build_kernel_s20_oneui5_a13:
     uses: ./.github/workflows/build_kernel_s20_oneui5.1_a13.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 's20_oneui5_a13') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 's20_oneui5_a13') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
   build_kernel_mipad4p_lineage_a15:
     uses: ./.github/workflows/build_kernel_mipad4p_lineage_a15.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 'mipad4p_lineage_a15') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 'mipad4p_lineage_a15') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
   build_kernel_redmi8_4_19_aosp_a15:
     uses: ./.github/workflows/build_kernel_older_redmi8_4.19_aosp_a15.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 'redmi8_4_19_aosp_a15') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 'redmi8_4_19_aosp_a15') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
   build_kernel_k40gaming_hyper_a13:
     uses: ./.github/workflows/build_kernel_older_k40gaming_hyper_a13.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 'k40gaming_hyper_a13') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 'k40gaming_hyper_a13') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
   build_kernel_note10pro_miui_a13:
     uses: ./.github/workflows/build_kernel_older_note10pro_miui_a13.yml
     secrets: inherit
-    if: "contains(inputs.kernels_to_build, 'note10pro_miui_a13') || inputs.kernels_to_build == 'all'"
+    if: "contains(inputs.kernels_to_build, 'note10pro_miui_a13') || inputs.kernels_to_build == 'all' || needs.set_kernels_to_build.outputs.kernels_to_build == 'all'"
 
   trigger-release:
     runs-on: ubuntu-latest
@@ -88,11 +104,11 @@ jobs:
 
         | Device Name | Codename | Kernel | System | Android | Method | KernelSU | SuSFS | Re:Kernel | Syscall |
         |----------|----------|----------|----------|----------|----------|----------|----------|----------|----------|
-        | OnePlus 8 | instantnoodle | 4.19 | OxygenOS/ColorOS 13.1 | 13 | AnyKernel3 | Magic | ✅ | ❌ | ✅ |
+        | OnePlus 8 | instantnoodle | 4.19 | OxygenOS/ColorOS 13.1 | 13 | AnyKernel3 | Magic | ✅ | ❌ | ❌ |
         | OnePlus 8 | instantnoodle | 4.19 | Nameless 15 | 15 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ |
         | Xiaomi Mix2s | polaris | 4.9 | Evolution X 10.X | 15 | AnyKernel3 | SukiSU(U) | ✅ | ✅ | ❌ |
         | Redmi K20 Pro | raphael | 4.14 | Based-AOSP | 15 | AnyKernel3 | rsuntk | ✅ | ❌ | ✅ |
-        | Black Shark 4 | penrose | 4.19 | MIUI/JoyUI 12 | 11 | AnyKernel3 | rsuntk | ❌ | ❌ | ❌ |
+        | Black Shark 4 | penrose | 4.19 | MIUI/JoyUI 12 | 11 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ |
         | Xiaomi 10S | thyme | 4.19 | Based-AOSP | 15 | AnyKernel3 | rsuntk | ✅ | ❌ | ❌ |
         | Samsung S20 5G | x1q | 4.19 | OneUI 5.1/6.1 | 13/14 | Boot Image | rsuntk | ❌ | ❌ | ❌ |
         | Xiaomi Pad 4(Plus) | clover | 4.19 | LineageOS 22.1 | 15 | AnyKernel3 | SukiSU(U) | ✅ | ❌ | ❌ |
@@ -104,6 +120,7 @@ jobs:
         - The Black Shark 4 cannot patch SuSFS due to a kernel defect (missing ANDROID_KABI). To enhance stealth and security, it is the first device to switch from the regular manual hook to [Syscall Hook](https://github.com/backslashxx/KernelSU/issues/5).
         - Samsung S20 5G supported **Snapdragon** only，Exynos doesn't try flash it.
         - Xiaomi Mi Mix 2S has been backported to Cgroup V2, but Cgroup Freezer requires additional system steps to be used and the actual execution of the freezing process is abnormal. It is recommended to use Cgroup UID.
+        - Xiaomi Mi Mix 2S was tracepoint hook for SukiSU-Ultra.
         - The kernel for the Redmi K40 Gaming is compatible with the Poco F3 GT.
         - The kernel for the Redmi Note 10 Pro is compatible with the Poco X3 GT.
         - The KernelSU version is for reference only. It is normal for the KernelSU version embedded in SUSFS to be lower.
@@ -130,7 +147,7 @@ jobs:
           fi
 
           NEW_TAG=$(echo "$LATEST_TAG" | awk -F'-r' '{suffix=$2; if (!suffix) suffix=0; suffix++; printf "%s-r%d", $1, suffix}')
-          # NEW_TAG="v1.5-r1"
+          # NEW_TAG="v1.6-r1"
 
           # Output the new tag to be used
           echo "New tag: $NEW_TAG"
@@ -149,7 +166,7 @@ jobs:
           # KSU_NEXT_VERSION=$(cd KernelSU-Next && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           git clone -b master https://github.com/backslashxx/KernelSU.git KernelSU-Magic
           KSU_MAGIC_VERSION=$(cd KernelSU-Magic && expr $(/usr/bin/git rev-list --count HEAD) + 10200 - 32)
-          git clone -b susfs-v1.5.7 https://github.com/rsuntk/KernelSU.git KernelSU-rsuntk
+          git clone -b susfs-main https://github.com/rsuntk/KernelSU.git KernelSU-rsuntk
           KSU_RSUNTK_VERSION=$(cd KernelSU-rsuntk && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
           git clone -b susfs-main https://github.com/ShirkNeko/SukiSU-Ultra.git KernelSU-SukiSU-Ultra
           KSU_SUKISU_ULTRA_VERSION=$(cd KernelSU-SukiSU-Ultra && expr $(/usr/bin/git rev-list --count HEAD) + 10200)

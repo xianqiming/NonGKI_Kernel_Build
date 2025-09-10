@@ -8,7 +8,7 @@ env:
   KERNELSU_METHOD: "shell" # shell, manual and only.
   PATCHES_SOURCE: "author/source" # [your_name]/[your_patch] -> gooder123/NonGKI_Patcher
   PATCHES_BRANCH: "branch" # [your_branch] -> main
-  HOOK_METHOD: "normal" # manual hook method,can choice syscall and normal.
+  HOOK_METHOD: "normal" # manual hook method,can choice syscall ,normal and tracepoint.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
   PROFILE_NAME: "codename_rom_template.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
@@ -91,7 +91,7 @@ jobs:
           cat /etc/os-release
 
           pacman -Syyu --noconfirm
-          pacman -S git base-devel systemd wget rustup curl patch ccache automake flex lzop bison gperf zip curl bzip2 squashfs-tools pngcrush schedtool make optipng maven pwgen minicom bc unzip 7zip zstd binutils gcc python3 wget which libxml2-legacy --noconfirm
+          pacman -S git base-devel systemd wget rustup curl patch ccache automake flex lzop bison gperf zip curl bzip2 squashfs-tools pngcrush schedtool make optipng maven pwgen minicom bc unzip 7zip zstd binutils gcc python3 wget which libxml2-legacy cpio --noconfirm
 
           # Update Rust Toolchain
           rustup default stable
@@ -113,7 +113,7 @@ jobs:
           cd $GITHUB_WORKSPACE
 
           # Copy Shell
-          cp /tmp/Patches/found_gcc.sh ./
+          cp /tmp/Bin/found_gcc.sh ./
 
           # Set GCC Aarch64
           if [[ "${{ env.CLANG_SOURCE }}" == *proton* ]]; then
@@ -239,8 +239,10 @@ jobs:
           fi
 
           echo "CONFIG_KSU=y" >> ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
-          if [[ "${{ env.KERNELSU_SOURCE }}" == *rsuntk* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]]; then
-            echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
+          if [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] && [[ "${{ env.HOOK_METHOD }}" == "tracepoint" ]]; then
+            echo "CONFIG_KSU_TRACEPOINT_HOOK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          elif [[ "${{ env.KERNELSU_SOURCE }}" == *rsuntk* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]]; then
+            echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
           fi
           if [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]] && [[ "${{ env.KPM_ENABLE }}" == "true" ]]; then
             echo "CONFIG_KALLSYMS=y" >> ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
@@ -438,6 +440,23 @@ jobs:
                 else
                    echo "Cannot found syscall_hook_patches.sh in build project , please check u file existed in build project !"
                    false
+               fi
+            elif [[ ${{ env.HOOK_METHOD }} == "tracepoint" ]]; then
+               if [[ -f "/tmp/Patches/tracepoint_hook_patches.sh" ]]; then
+                  cp /tmp/Patches/tracepoint_hook_patches.sh device_kernel/
+                  cd device_kernel
+                  bash tracepoint_hook_patches.sh
+                  echo "execuated tracepoint patch successfully."
+                  if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
+                        cp /tmp/Patches/backport_patches_early.sh ./
+                        bash backport_patches_early.sh
+                        echo "execuated backport patch early successfully. "
+                  else
+                      echo "your kernel needn't backport patch."
+                  fi
+               else
+                  echo "Cannot found tracepoint_hook_patches.sh in build project , please check u file existed in build project !"
+                  false
                fi
             else
               echo "please input vaild option!"
@@ -698,10 +717,12 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
 
-          cp /tmp/Patches/check_error.sh ./
+          cp /tmp/Bin/check_error.sh ./
           bash check_error.sh
 
           if [ -f "have_error" ]; then
+            cp /tmp/Bin/pack_error_files.sh ./
+            bash pack_error_files.sh
             false
           else
             echo "Skipped."
@@ -764,6 +785,33 @@ jobs:
               gzip -c Image > Image.gz
               echo "Hook Image successfully !"
               ;;
+            plain-dtb)
+              if [ -f "include/linux/set_memory.h" ]; then
+                  if [ -d "out/arch/arm64/boot/dts" ]; then
+                      rm -f "$IMAGE_DIR/Image-dtb"
+                      cp patch "$IMAGE_DIR/"
+                      cd "$IMAGE_DIR/" || exit 1
+                      ./patch
+                      rm -f Image
+                      mv oImage Image
+                      cat Image dts/${{ env.GENERATE_CHIP }}/*.dtb > Image-dtb
+                      echo "Hook Image successfully !"
+                  elif [ -d "out/arch/arm64/boot/vendor/dts" ]; then
+                      rm -f "$IMAGE_DIR/Image-dtb"
+                      cp patch "$IMAGE_DIR/"
+                      cd "$IMAGE_DIR/" || exit 1
+                      ./patch
+                      rm -f Image
+                      mv oImage Image
+                      cat Image vendor/dts/${{ env.GENERATE_CHIP }}/*.dtb > Image-dtb
+                      echo "Hook Image successfully !"
+                  else
+                      echo "Not found dts folder, abort."
+                  fi
+              else
+                  echo "Not supported for your kernel !"
+              fi
+              ;;
             plain)
               cp patch "$IMAGE_DIR/"
               cd "$IMAGE_DIR/" || exit 1
@@ -805,6 +853,9 @@ jobs:
           elif [[ -f "$IMAGE_DIR/zImage-dtb" ]]; then
             cp -fp $IMAGE_DIR/zImage-dtb tmp
             echo "Found zImage-dtb (ARMV7A) !"
+          elif [[ -f "$IMAGE_DIR/Image-dtb" ]]; then
+            cp -fp $IMAGE_DIR/Image-dtb tmp
+            echo "Found Image-dtb !"
           elif [[ -f "$IMAGE_DIR/Image" ]]; then
             # gzip -c $IMAGE_DIR/Image > $IMAGE_DIR/Image.gz
             # cp -fp $IMAGE_DIR/Image.gz tmp
@@ -866,6 +917,12 @@ jobs:
             rm -f out/kernel
             cp -fp $IMAGE_DIR/Image.gz out/kernel
             echo "Found Image.gz !"
+          elif [[ -f "$IMAGE_DIR/zImage-dtb" ]]; then
+            cp -fp $IMAGE_DIR/zImage-dtb  out/kernel
+            echo "Found zImage-dtb (ARMV7A) !"
+          elif [[ -f "$IMAGE_DIR/Image-dtb" ]]; then
+            cp -fp $IMAGE_DIR/Image-dtb  out/kernel
+            echo "Found Image-dtb !"
           elif [[ -f "$IMAGE_DIR/Image" ]]; then
             rm -f out/kernel
             cp -fp $IMAGE_DIR/Image out/kernel
@@ -897,6 +954,15 @@ jobs:
           echo "PACK_NAME=${{ env.DEVICE_CODENAME }}-${{ env.ROM_TEXT }}-$TIME-image${{ env.LXC_STATUS }}.img" >> $GITHUB_ENV
 
           rm -f $GITHUB_WORKSPACE/boot_source_${{ env.DEVICE_NAME }}.img
+
+      - name: Upload Build Error Files
+        if: ${{ failure() && env.BUILD_DEBUGGER == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: error_files
+          path: |
+            device_kernel/error.log
+            device_kernel/compile_errors_files.zip
 
       - name: Upload Build Artifacts For Anykernel3
         if: env.PACK_METHOD == 'Anykernel3'

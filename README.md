@@ -2,7 +2,10 @@
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/JackA1ltman/NonGKI_Kernel_Build/main)![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/JackA1ltman/NonGKI_Kernel_Build/latest/total)  
 [支持列表](Supported_Devices.md) | 中文文档 | [English](README_EN.md) | [更新日志](Updated.md)  
 
-**Ver**.1.5
+**Ver**.1.6 Final LTS  
+> [!IMPORTANT]
+> v1 版本项目将会进入长期维护模式，也就意味着未来将不会提供功能增强，仅维护当前编译结果  
+> v2 版本将会正式投入使用：[NonGKI_Kernel_Build_2nd](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd)
 
 **Non-GKI**：我们常说的Non-GKI包括了GKI1.0（内核版本4.19-5.4）（5.4为QGKI）和真正Non-GKI（内核版本≤4.14）  
 
@@ -76,6 +79,7 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - **HOOK_METHOD** - 我们提供了两种方式用于KernelSU手动修补：
     - **normal**代表最常见的修补方式，一般不会出问题，仅适合内核版本≥3.18（ARM64）设备
     - [syscall](https://github.com/backslashxx/KernelSU/issues/5)是最新的最小化修补方式，似乎会提高隐藏，但是在低版本clang下可能会有ISO编译规范问题，目前已经支持包括3.4版本内核为最低版本的所有内核，对于**内核版本≤4.9**的内核，会自动执行针对kernel_write和kernel_read的修补补丁，但可能存在需要二次修补的情况，更高版本内核则不需要考虑这个事情
+    - **tracepoint**是由SukiSU-Ultra作者ShirkNeko基于Syscall Hook 1.4版本制作而成，进一步将修补更小化，目前已确认支持5.4-3.18之间的内核版本，但注意，目前**仅支持SukiSU-Ultra**
   - **HOOK_OLDER** - 若你需要syscall补丁，但你的设备或KernelSU不支持最新版本的syscall则可以启用
   - **PROFILE_NAME** - 填写成你修改好的env环境变量文件的名称，例如codename_rom_template.env
   - **KERNELSU_SUS_PATCH** - 如果你的KernelSU不属于KernelSU-Next，并且也没有针对SuSFS的修补分支，可以启用该项目（true），但我们不建议这么做，因为分支KernelSU的魔改情况严重，手动修补已经不能顺应现在的时代了
@@ -105,6 +109,12 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
 - **Get Kernel Source**
   - 正常来说内核源码都可以通过Git方式获得，所以基本不需要修改
   - 某些国产厂商的水平堪忧，开源但却是自打包，或者驱动与内核源码分离，因此可能需要你自己修改这个部分
+  - 如果你有boot.img，那么你可以尝试自行从boot.img中提取Image并用于提取defconfig的过程
+    - 第一步：获取来自Google的[mkbootimg工具](https://android.googlesource.com/platform/system/tools/mkbootimg/)
+    - 第二步：使用如下命令 `mkbootimg/unpack_bootimg.py --boot=boot.img`
+    - 第三步：查看生成的**out文件夹**中是否存在**kernel**这个文件，若存在请看第四步
+    - 第四步：将**kernel**重命名为**Image**
+    - 第五步：上传Image并用于你自己的提取defconfig步骤
   
 - **Set Pack Method and KernelSU and SUSFS**
   - 我们默认提供Anykernel3和MKBOOTIMG两种打包方式，其中AK3可以自动检测内核源码中是否存在，若不存在则调用env提供的SOURCE和BRANCH，对于AK3仅提供git方式，MKBOOTIMG由我们默认提供，一般不需要自行获取
@@ -164,7 +174,7 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   
 - **syscall_hook_patches_early.sh**
   - 暂无执行方式
-  - syscall的最初版本，适用于需要syscall但执行最新版失败的情况
+  - syscall的最初版本，适用于需要syscall但执行最新版失败的情况，由于大部分KernelSU分支已经至少更新支持到Syscall 1.4，因此在未来我将不再维护该补丁，但会保留该补丁并可用于手动执行
   - 参考：https://github.com/backslashxx/KernelSU/issues/5
   
 - **backport_patches.sh** 
@@ -176,16 +186,6 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 自动执行
   - 旧版向后移植方案，用于normal patch和syscall旧版
   - 参考：https://github.com/backslashxx/KernelSU/issues/4#issue-2818274642
-
-- **found_gcc.sh**
-  - 自动判断GCC执行
-  - 用于对GCC前缀进行自动化解析
-  - 参考：暂无
-  
-- **check_error.sh**
-  - 变量：BUILD_DEBUGGER -> true
-  - 用于分析基础的编译错误，并提供一定建议
-  - 参考：暂无
   
 - **Patch/susfs_upgrade_to_157.patch**
   - 变量：(env文件)SUSFS_UPDATE -> true
@@ -225,6 +225,7 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
     - https://gitlab.com/simonpunk/susfs4ksu/-/commit/dbadb4d17bc71244675eecf179eacf5bec924ec3
     - https://gitlab.com/simonpunk/susfs4ksu/-/commit/9ec78e78904e702228bdb3a4f7a666f644bc0b2a
     - https://gitlab.com/simonpunk/susfs4ksu/-/commit/99184236f0a346f35f27b5dc9844771841ed8fa3
+    - https://gitlab.com/simonpunk/susfs4ksu/-/commit/32694cec5cf53171de86cd468f415c4e2ff8c4bf
     
 - **Patch/set_memory_to_49_and_low.patch**
   - 变量：KPM_ENABLE -> true
@@ -250,5 +251,20 @@ Github放弃了Ubuntu 20.04，若你有需求，或者使用Clang Proton，请�
   - 自动执行
   - 用于更加便捷的执行包括断点续传在内的curl命令
   - 参考：由[@yu13140](https://github.com/yu13140)提供更新
+  
+- **Bin/found_gcc.sh**
+  - 自动判断GCC执行
+  - 用于对GCC前缀进行自动化解析
+  - 参考：暂无
+  
+- **Bin/check_error.sh**
+  - 变量：BUILD_DEBUGGER -> true
+  - 用于分析基础的编译错误，并提供一定建议
+  - 参考：暂无
+  
+- **Bin/pack_error_files.sh**
+  - 变量：BUILD_DEBUGGER -> true
+  - 用于打包error.log中涉及的所有有效错误文件
+  - 参考：暂无
   
 最后提醒⚠️：非上述提示的步骤理论上不需要你做任何修改，我已经尽可能实现多情况判定

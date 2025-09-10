@@ -1,4 +1,70 @@
 ## 项目更新日志
+- **Ver.1.6 Final**
+    - **当前大版本将会结束更新，项目将会执行重构，重构期间将不再适配新设备，但已经适配的设备将会正常执行编译和发布**
+    - **重构后，项目旧版本会在其他分支中得到保留，因此这不会影响你使用旧版本进行自行编译的想法**
+    - **重构后的项目仅会迁移维护状态为：Stable、Beta 的设备**
+    - **除了接下来可能进行的小型补丁外，其他更大型的补丁将会暂停**
+    - 切换 小米Mix2s Clang为llvm 20
+    - 修正 说明文件 版本信息
+    - 修正 支持列表 部分设备信息
+    - 修正 发布列表 部分设备信息
+    - 撤回 syscall_hook_patches_early.sh 至最初版本
+
+- **Ver.1.6 Fixed 10**
+    - 移植 一加8 OOS13 SUSFS更新至v1.5.10
+    - 切换 一加8 OOS13 KernelSU分支至SukiSU
+    - 修正 支持列表 部分设备信息
+    - 修正 发布列表 部分设备信息
+    
+- **Ver.1.6 Fixed 9**
+    - 移植 红米 K20 Pro SUSFS更新至v1.5.10
+    - 切换 红米 K20 Pro KernelSU分支至susfs-main
+
+- **Ver.1.6 Fixed 8**
+    - 修正 syscall_hook_patches_early.sh 缺失的pty.c修补
+
+- **Ver.1.6 Fixed 7**
+    - 移植 OPPO K9 Pro SUSFS更新至v1.5.10
+
+- **Ver.1.6 Fixed 6**
+    - 增加 check_error.sh 判断错误类型
+
+- **Ver.1.6 Fixed 5**
+    - 迁移 Realme 6 LineageOS Plus YAML文件至常规版本
+    - 修正 华为 P10 EMUI 9.1 读取ENV错误
+
+- **Ver.1.6 Fixed 4**
+    - 增加 华为 P10 EMUI 9.1 设备
+    - 增加 荣耀 Honor EMIUI 9.1 设备
+    - 修正 Realme 6 LineageOS Plus ENV文件 Clang地址
+
+- **Ver.1.6 Fixed 3**
+    - 增加 Realme 6 LineageOS Plus 设备
+
+- **Ver.1.6 Fixed 2**
+    - 修正 部分YAML文件 缺少Bin目录问题
+
+- **Ver.1.6 Fixed 1**
+    - 合并 SuSFS上游最新commit
+    - 修正 说明文件 SuSFS参考链接
+
+- **Ver.1.6**
+    - 移动 check_error.sh 至 Bin/
+    - 移动 found_gcc.sh 至 Bin/
+    - 增加 示例YAML文件 上传error.log文件步骤
+    - 增加 示例YAML文件 打包并上传所有有效错误文件步骤
+    - 修正 说明文件 版本信息
+    - 修正 说明文件 部分sh文件介绍
+    - 修正 说明文件 获取内核步骤介绍
+    - 修正 发布Tag至 1.6-r1
+    - 修正 部分YAML文件 涉及上述sh文件的执行位置修正
+    - 删除 示例YAML文件 多余步骤
+
+---
+    
+- **Ver.1.5 Fixed 54**
+    - 增加 Realme GT Neo 设备
+
 - **Ver.1.5 Fixed 53**
     - 增加 OPPO K9 Pro LineageOS A15 设备
     - 增加 发布列表 对应设备信息

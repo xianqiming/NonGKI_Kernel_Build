@@ -1,4 +1,4 @@
-name: Build Kernel OPPO K9 Pro (LineageOS 22 A15) with KSU and SUSFS
+name: Build Kernel Realme GT Neo (Based-AOSP A13) with KSU
 on:
   workflow_call:
   workflow_dispatch:
@@ -10,7 +10,7 @@ env:
   PATCHES_BRANCH: "branch" # [your_branch] -> main
   HOOK_METHOD: "normal" # manual hook method,can choice syscall and normal.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
-  PROFILE_NAME: "PEYM00_los_a15.env" # your profile name.
+  PROFILE_NAME: "RMX3031_aosp_a13.env" # your profile name.
   KERNELSU_SUS_PATCH: "false" # if u need manual susfs patch to kernelsu.
   KPM_ENABLE: "false" # Only use it for SukiSU-Ultra.
   KPM_FIX: "false" # Fix Error When Enabling KPM.
@@ -501,6 +501,7 @@ jobs:
         run: |
           # Only ${{ env.DEVICE_NAME }} use it.
           cd $GITHUB_WORKSPACE/device_kernel
+          sed -i 's/atomic_inc_not_zero/atomic_long_inc_not_zero/g' include/linux/cred.h
           # Nothing
 
       - name: Added mkdtboimg to kernel (Experiment)
@@ -723,6 +724,11 @@ jobs:
                 done
                 make CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} olddefconfig
             fi
+
+            # Added drivers file
+            mkdir -p out/hal/phydm/
+            cp drivers/staging/rtl8192eu/hal/phydm/phydm.mk out/hal/phydm/
+
             make -j$(nproc --all) CC="ccache clang" O=out ARCH=arm64 ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} 2>&1|tee error.log
           fi
 

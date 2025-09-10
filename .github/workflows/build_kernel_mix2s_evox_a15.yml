@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 env:
   PACK_METHOD: "Anykernel3" # Anykernel3 need SOURCE and BRANCH, MKBOOTIMG needn't it.
-  HOOK_METHOD: "normal" # manual hook method,can choice syscall and normal.
+  HOOK_METHOD: "tracepoint" # manual hook method,can choice syscall and normal.
   HOOK_OLDER: "false" # contain backport older patch and syscall older patch.
   KPM_ENABLE: "true" # Only use it for SukiSU-Ultra.
   KPM_PATCH_SOURCE: "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU_patch/refs/heads/main/kpm/patch_linux" # patch exec file source -> raw.githubusercontent.com/Test/Test/patch .
@@ -65,6 +65,7 @@ jobs:
 
           # Move patch folder to tmp
           mv $GITHUB_WORKSPACE/Patches /tmp/
+          mv $GITHUB_WORKSPACE/Bin /tmp/
 
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
@@ -157,7 +158,13 @@ jobs:
           if [[ -n "${{ env.DEFCONFIG_SOURCE }}" ]]; then
             wget ${{ env.DEFCONFIG_SOURCE }} -O device_kernel/arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           fi
+
+          # Get KernelSU Version and Kernel Version
+
+          KERNEL_VERSION=$(head -n 3 $GITHUB_WORKSPACE/device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')
           echo "KERNEL_VERSION=$(head -n 3 device_kernel/Makefile | grep -E 'VERSION|PATCHLEVEL' | awk '{print $3}' | paste -sd '.')" >> $GITHUB_ENV
+          echo "FIRST_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $1}')" >> $GITHUB_ENV
+          echo "SECOND_VERSION=$(echo "$KERNEL_VERSION" | awk -F '.' '{print $2}')" >> $GITHUB_ENV
 
       - name: Set KSU and SUSFS for DEFCONFIG
         run: |
@@ -165,7 +172,8 @@ jobs:
           echo "CONFIG_KSU=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_KPM=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           if [[ "${{ env.KERNELSU_SOURCE }}" == *rsuntk* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]]; then
-            echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            # echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+            echo "CONFIG_KSU_TRACEPOINT_HOOK=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           fi
           if [[ ${{ env.SUSFS_ENABLE }} == "true" ]]; then
             echo "CONFIG_KSU_SUSFS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
@@ -335,6 +343,23 @@ jobs:
                    echo "Cannot found syscall_hook_patches.sh in build project , please check u file existed in build project !"
                    false
                fi
+            elif [[ ${{ env.HOOK_METHOD }} == "tracepoint" ]]; then
+               if [[ -f "/tmp/Patches/tracepoint_hook_patches.sh" ]]; then
+                  cp /tmp/Patches/tracepoint_hook_patches.sh device_kernel/
+                  cd device_kernel
+                  bash tracepoint_hook_patches.sh
+                  echo "execuated tracepoint patch successfully."
+                  if [[ "${{ env.KERNELSU_NAME }}" != "KernelSU-Next" ]]; then
+                        cp /tmp/Patches/backport_patches_early.sh ./
+                        bash backport_patches_early.sh
+                        echo "execuated backport patch early successfully. "
+                  else
+                      echo "your kernel needn't backport patch."
+                  fi
+               else
+                  echo "Cannot found tracepoint_hook_patches.sh in build project , please check u file existed in build project !"
+                  false
+               fi
             else
               echo "please input vaild option!"
               false
@@ -476,12 +501,14 @@ jobs:
         if: env.SUSFS_ENABLE == 'true' && env.SUSFS_FIXED == 'true'
         run: |
           cd $GITHUB_WORKSPACE/device_kernel/
+          cp NonGKI_Kernel_Patches/mix2s_evox_a15/erofs_fixed.patch ./
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/cmdline_fixed.patch ./
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/task_mmu_fixed.patch ./
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/fdinfo_fixed.patch ./
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/wireguard_fixed.patch ./
           cp NonGKI_Kernel_Patches/mix2s_evox_a15/rekernel_fork_fixed.patch ./
 
+          patch -p1 < erofs_fixed.patch || true
           patch -p1 < cmdline_fixed.patch || true
           patch -p1 < task_mmu_fixed.patch || true
           patch -p1 < fdinfo_fixed.patch || true
