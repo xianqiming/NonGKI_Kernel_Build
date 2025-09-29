@@ -6,6 +6,7 @@
 # 20250821
 
 patch_files=(
+    fs/exec.c
     fs/open.c
     fs/read_write.c
     fs/stat.c
@@ -27,6 +28,50 @@ for i in "${patch_files[@]}"; do
     case $i in
 
     # fs/ changes
+    ## exec.c
+    fs/exec.c)
+        sed -i '/#include <trace\/events\/sched.h>/a \#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)\n#include <..\/drivers\/kernelsu\/ksu_trace.h>\n#endif' fs/exec.c
+        if grep -q "do_execveat_common" fs/exec.c; then
+            awk '
+/return do_execveat_common\(AT_FDCWD, filename, argv, envp, 0\);/ {
+    count++;
+    if (count == 1) {
+        print "#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)";
+        print "\ttrace_ksu_trace_execveat_hook((int *)AT_FDCWD, &filename, &argv, &envp, 0);";
+        print "#endif";
+    } else if (count == 2) {
+        print "#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)";
+        print "\ttrace_ksu_trace_execveat_sucompat_hook((int *)AT_FDCWD, &filename, NULL, NULL, NULL); /* 32-bit su */";
+        print "#endif";
+    }
+}
+{
+    print;
+}
+' fs/exec.c > fs/exec.c.new
+            mv fs/exec.c.new fs/exec.c
+        else
+awk '
+/return do_execve_common\(filename, argv, envp\);/ {
+    count++;
+    if (count == 1) {
+        print "#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)";
+        print "\ttrace_ksu_trace_execveat_hook((int *)AT_FDCWD, &filename, &argv, &envp, 0);";
+        print "#endif";
+    } else if (count == 2) {
+        print "#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)";
+        print "\ttrace_ksu_trace_execveat_sucompat_hook((int *)AT_FDCWD, &filename, NULL, NULL, NULL); /* 32-bit su */";
+        print "#endif";
+    }
+}
+{
+    print;
+}
+' fs/exec.c > fs/exec.c.new
+            mv fs/exec.c.new fs/exec.c
+        fi
+        ;;
+
     ## open.c
     fs/open.c)
         sed -i '/#include "internal.h"/a \#if defined(CONFIG_KSU) && defined(CONFIG_KSU_TRACEPOINT_HOOK)\n#include <..\/drivers\/kernelsu\/ksu_trace.h>\n#endif' fs/open.c
@@ -96,7 +141,7 @@ for i in "${patch_files[@]}"; do
         elif [ "$FIRST_VERSION" -lt 5 ] && [ "$SECOND_VERSION" -lt 10 ]; then
             sed -i '/int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);/i\#ifdef CONFIG_KSU\n    static u32 ksu_sid;\n    char *secdata;\n#endif' security/selinux/hooks.c
             sed -i '/if (!nnp && !nosuid)/i\#ifdef CONFIG_KSU\n    int error;\n    u32 seclen;\n#endif' security/selinux/hooks.c
-            sed -i '/return 0; \/\* No change in credentials \*\//a\\n#ifdef CONFIG_KSU\n    if (!ksu_sid)\n        security_secctx_to_secid("u:r:su:s0", strlen("u:r:su:s0"), &ksu_sid);\n\n    error = security_secid_to_secctx(old_tsec->sid, &secdata, &seclen);\n    if (!error) {\n        rc = strcmp("u:r:init:s0", secdata);\n        security_release_secctx(secdata, seclen);\n        if (rc == 0 && new_tsec->sid == ksu_sid)\n            return 0;\n#endif\n    }' security/selinux/hooks.c
+            sed -i '/return 0; \/\* No change in credentials \*\//a\\n#ifdef CONFIG_KSU\n    if (!ksu_sid)\n        security_secctx_to_secid("u:r:su:s0", strlen("u:r:su:s0"), &ksu_sid);\n\n    error = security_secid_to_secctx(old_tsec->sid, &secdata, &seclen);\n    if (!error) {\n        rc = strcmp("u:r:init:s0", secdata);\n        security_release_secctx(secdata, seclen);\n        if (rc == 0 && new_tsec->sid == ksu_sid)\n            return 0;\n    }\n#endif' security/selinux/hooks.c
         fi
 
     esac
