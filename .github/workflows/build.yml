@@ -10,7 +10,7 @@ on:
       kernels_to_build:
         description: "Input need to build kernel name."
         required: true
-        default: "op8_oos131_a13 k20p_aosp_a15 mix2s_evox_a15 blackshark4_miui_a11 mi10s_aosp_a15 op8_nameless15_a15 s20_oneui5_a13 mipad4p_lineage_a15 redmi8_4_19_aosp_a15 k40gaming_hyper_a13 note10pro_miui_a13"
+        default: "k20p_aosp_a15 blackshark4_miui_a11 mi10s_aosp_a15 op8_nameless15_a15 s20_oneui5_a13 mipad4p_lineage_a15 redmi8_4_19_aosp_a15 k40gaming_hyper_a13 note10pro_miui_a13"
       make_release:
         description: "Do you want to create a release?"
         required: true
