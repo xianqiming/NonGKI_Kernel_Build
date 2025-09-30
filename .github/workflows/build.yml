@@ -61,9 +61,7 @@ jobs:
   trigger-release:
     runs-on: ubuntu-latest
     needs:
-      - build_kernel_op8_oos131_a13
       - build_kernel_k20p_aosp_a15
-      - build_kernel_mix2s_evox_a15
       - build_kernel_blackshark4_miui_a11
       - build_kernel_mi10s_aosp_a15
       - build_kernel_op8_nameless15_a15
