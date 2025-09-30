@@ -267,6 +267,7 @@ jobs:
           fi
 
           echo "CONFIG_KSU=y" >> ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
+          echo "CONFIG_KSU_MANUAL_SU=y" >> ./arch/${{ env.KERNEL_ARCH }}/configs/${{ env.DEFCONFIG_NAME }}
           if [[ "${{ env.KERNELSU_SOURCE }}" == *rsuntk* ]] || [[ "${{ env.KERNELSU_SOURCE }}" == *SukiSU* ]]; then
             echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./arch/$ARCH/configs/${{ env.DEFCONFIG_NAME }}
           fi
