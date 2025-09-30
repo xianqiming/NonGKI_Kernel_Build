@@ -409,6 +409,15 @@ jobs:
             echo "kernel version<5.4 cannot use kprobe patch to update 1.5.10."
           fi
 
+          # Upgrade 1.5.11
+          if grep -q "susfs_reorder_mnt_id" "drivers/kernelsu/core_hook.c"; then
+            cp /tmp/Patches/Patch/susfs_upgrade_to_1511_${{ env.KERNEL_VERSION }}.patch ./
+            patch -p1 < susfs_upgrade_to_1511_${{ env.KERNEL_VERSION }}.patch || true
+            echo "Detected no-kprobe hook, use no-kprobe patch to update 1.5.11"
+          else
+            echo "Your kernelsu fork cannot supported SuSFS 1.5.11. Skipped."
+          fi
+
           # Extra SUSFS Patch
           cp NonGKI_Kernel_Patches/blackshark4_miui12/susfs_158_fixed.patch ./
           cp NonGKI_Kernel_Patches/blackshark4_miui12/susfs_1510_fixed.patch ./
